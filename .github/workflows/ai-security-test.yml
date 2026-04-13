@@ -1,0 +1,76 @@
+name: AI Security Test
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run weekly security scan every Monday at 6am UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      risk_tier:
+        description: 'TAG Risk Tier (HIGH/MEDIUM/LOW)'
+        required: false
+        default: 'HIGH'
+      threshold:
+        description: 'Minimum safety rate percentage'
+        required: false
+        default: '80'
+      max_attacks:
+        description: 'Maximum attacks to run'
+        required: false
+        default: '50'
+
+jobs:
+  ai-security-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI Security Tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cd src && python -m integrations.ci_runner \
+            --config ../config/config_client_template.yaml \
+            --threshold ${{ github.event.inputs.threshold || '80' }} \
+            --risk-tier ${{ github.event.inputs.risk_tier || 'HIGH' }} \
+            --max-attacks ${{ github.event.inputs.max_attacks || '50' }} \
+            --junit-xml ../reports/ci/junit.xml \
+            --output-dir ../reports/ci
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: reports/ci/junit.xml
+          check_name: 'AI Security Results'
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-security-reports
+          path: reports/ci/
+          retention-days: 90
+
+      - name: Write Job Summary
+        if: always()
+        run: |
+          if [ -f reports/ci/summary.md ]; then
+            cat reports/ci/summary.md >> $GITHUB_STEP_SUMMARY
+          fi

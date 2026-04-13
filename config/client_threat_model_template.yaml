@@ -1,0 +1,134 @@
+# ═══════════════════════════════════════════════════════════════════════
+# Client Threat Model Template
+# Structured intake for enterprise LLM security assessments
+# ═══════════════════════════════════════════════════════════════════════
+
+client_info:
+  organisation_name: ""
+  industry: ""  # e.g. Financial Services, Healthcare, Legal, Government
+  contact_name: ""
+  contact_email: ""
+  assessment_date: ""
+
+# ── 1. Application Architecture ─────────────────────────────────────
+application:
+  name: ""
+  description: ""
+  deployment_model: ""  # cloud, on-premise, hybrid
+  llm_provider: ""  # OpenAI, Anthropic, self-hosted, etc.
+  model_name: ""  # gpt-4, claude-3, llama-3, etc.
+  uses_rag: false
+  uses_tools: false
+  uses_multi_turn: false
+  user_facing: true  # Is the LLM output shown directly to end users?
+  agentic: false  # Does the LLM take autonomous actions?
+  
+  data_flows:
+    - source: ""
+      destination: ""
+      data_type: ""
+      classification: ""  # public, internal, confidential, restricted
+
+# ── 2. Threat Actors ────────────────────────────────────────────────
+threat_actors:
+  - name: "External Attacker"
+    motivation: "Data exfiltration, service disruption"
+    capabilities: "Prompt injection, social engineering"
+    access_level: "Unauthenticated user"
+    
+  - name: "Malicious Insider"
+    motivation: "Privilege escalation, data theft"
+    capabilities: "Authenticated access, knowledge of system"
+    access_level: "Authenticated user"
+    
+  - name: "Supply Chain Attacker"
+    motivation: "Backdoor insertion, model poisoning"
+    capabilities: "Control over training data or plugins"
+    access_level: "Indirect via dependencies"
+
+# ── 3. Assets at Risk ──────────────────────────────────────────────
+assets:
+  - name: "System Prompt"
+    classification: "confidential"
+    impact_if_compromised: "Attacker learns guardrails and can craft bypasses"
+    
+  - name: "RAG Knowledge Base"
+    classification: "internal"
+    impact_if_compromised: "Sensitive documents exposed to unauthorised users"
+    
+  - name: "User PII"
+    classification: "restricted"
+    impact_if_compromised: "Regulatory violation (GDPR, CCPA), reputational damage"
+    
+  - name: "API Credentials"
+    classification: "restricted"
+    impact_if_compromised: "Unauthorised access to downstream services"
+
+# ── 4. Attack Surface ─────────────────────────────────────────────
+attack_surface:
+  user_input:
+    enabled: true
+    description: "Direct user prompts to the LLM"
+  
+  rag_documents:
+    enabled: false  # Set true if RAG is used
+    description: "Documents ingested into the RAG knowledge base"
+    
+  tool_outputs:
+    enabled: false  # Set true if tools/plugins are used
+    description: "Responses from external APIs/tools fed back to the LLM"
+    
+  file_uploads:
+    enabled: false
+    description: "User-uploaded files processed by the LLM"
+    
+  web_browsing:
+    enabled: false
+    description: "Web content fetched and processed by the LLM"
+
+# ── 5. Compliance Requirements ────────────────────────────────────
+compliance:
+  frameworks:
+    - name: "OWASP LLM Top 10"
+      mandatory: true
+    - name: "MITRE ATLAS"
+      mandatory: true
+    - name: "UK GDPR / ICO"
+      mandatory: false
+    - name: "FCA Guidelines"
+      mandatory: false
+    - name: "SOC 2"
+      mandatory: false
+    - name: "ISO 27001"
+      mandatory: true
+
+# ── 6. Test Scope Configuration ───────────────────────────────────
+test_scope:
+  # Categories to test (match entries in owasp_attacks.yaml)
+  categories:
+    - "Prompt Injection"
+    - "Indirect Prompt Injection"
+    - "Jailbreak"
+    - "Data Leakage"
+    - "System Prompt Extraction"
+    - "Encoding / Obfuscation Bypass"
+    - "Insecure Output Handling"
+    - "Output Format Injection"
+    - "SSRF via LLM"
+    - "Extraction"
+    # Add more as needed from the full category list
+    
+  complexity_levels: ["low", "medium", "high"]
+  max_attacks: null        # Set to N to limit total attacks
+  per_category: 2       # Set to N for N attacks per category
+  include_rag_attacks: false
+  include_multi_turn: true
+  
+# ── 7. Risk Acceptance ─────────────────────────────────────────────
+risk_acceptance:
+  critical_failure_threshold: 5  # % of critical failures before CI/CD block
+  accepted_risks:
+    - description: ""
+      justification: ""
+      accepted_by: ""
+      accepted_date: ""

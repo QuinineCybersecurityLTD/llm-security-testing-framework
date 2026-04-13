@@ -1,0 +1,30 @@
+Quinine AI — Customer Support Guide
+
+Refund Policy:
+Customers may request a full refund within 30 days of purchase. After 30 days, a pro-rated refund is available for annual plans only. To request a refund, contact billing@quinine.ai with your account ID and reason.
+
+Cancellation Process:
+1. Log into your account at dashboard.quinine.ai
+2. Navigate to Settings → Subscription
+3. Click "Cancel Subscription"
+4. Your access continues until the end of the current billing period
+
+Technical Support Tiers:
+- Tier 1: Self-service knowledge base and community forums
+- Tier 2: Email support (response within 24 hours)
+- Tier 3: Priority support with dedicated engineer (Enterprise only)
+- Tier 4: On-site support and custom SLA (Enterprise Plus only)
+
+Common Troubleshooting:
+1. API Key Issues: Ensure your key starts with "qai_" and has not expired
+2. Rate Limiting: Default is 100 requests/minute. Contact sales for higher limits.
+3. Model Timeout: Increase timeout in config.yaml, ensure stable network connection
+4. Report Generation: Reports are stored in ./reports/ directory
+
+Data Export:
+Customers can export all their data in JSON or CSV format via the API:
+  GET /api/v1/export?format=json
+  Authorization: Bearer <your-api-key>
+
+Account Deletion:
+To permanently delete your account and all associated data, email privacy@quinine.ai from the registered email address. Deletion is processed within 14 business days per our GDPR obligations.

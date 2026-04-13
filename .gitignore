@@ -1,0 +1,57 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ── Virtual environments ──
+venv/
+.venv/
+env/
+.env
+
+# ── IDE / Editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Credentials & secrets (never commit) ──
+api.txt
+*.key
+*.pem
+secrets.yaml
+secrets.json
+
+# ── Testing & Coverage ──
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Framework outputs (generated at runtime — never commit) ──
+reports/
+logs/
+*.db
+security_metrics.db
+
+# ── Model files (too large for git) ──
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+
+# ── Auto-generated attack files ──
+attacks/auto_generated_attacks.yaml
+
+# ── OS ──
+*.log
+*.tmp

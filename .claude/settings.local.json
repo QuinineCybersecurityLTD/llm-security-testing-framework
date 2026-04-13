@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \":*)",
+      "Bash(python -c \"import yaml; [yaml.safe_load\\(open\\(f, encoding=''utf-8''\\)\\) for f in __import__\\(''glob''\\).glob\\(''attacks/*.yaml''\\)]\")",
+      "Bash(python -m py_compile src/improved_evaluator.py)",
+      "Bash(python -m py_compile src/reporter.py)",
+      "Bash(python -m py_compile src/multiturn_attack_framework.py)",
+      "Bash(python -m py_compile src/telemetry.py)",
+      "Bash(cd:*)",
+      "Bash(find ./reports -name report_*.html -o -name report_*.json)",
+      "Bash(python -c \"import py_compile; py_compile.compile\\(''src/rag/rag_server.py'', doraise=True\\); print\\(''rag_server.py: OK''\\)\")",
+      "Bash(python -c \"import py_compile; py_compile.compile\\(''src/main.py'', doraise=True\\); print\\(''main.py: OK''\\)\")",
+      "Bash(python -c \"from rag.rag_server import app, _init_config; print\\(''Import OK''\\); cfg = _init_config\\(\\); print\\(f''Config: port={cfg.port}, kb={cfg.knowledge_base}''\\)\")",
+      "Bash(curl -s -X POST http://localhost:8001/api/retrieve -H \"Content-Type: application/json\" -d \"{\"\"query\"\": \"\"employee handbook policy security information company details\"\", \"\"top_k\"\": 5}\")",
+      "Bash(python -m json.tool)",
+      "Bash(taskkill //F //FI 'WINDOWTITLE eq *rag_server*')",
+      "Bash(pkill -f rag.rag_server)",
+      "Bash(netstat -ano)",
+      "Bash(while read:*)",
+      "Bash(do taskkill:*)",
+      "Bash(done)",
+      "Bash(python -m rag.rag_server --config ../config/config_rag_server.yaml --port 8001)",
+      "Bash(curl -s -X POST http://localhost:8001/api/chat -H \"Content-Type: application/json\" -d \"{\"\"message\"\": \"\"What is the company policy on remote work?\"\", \"\"stream\"\": false}\")",
+      "Bash(python -m py_compile attacks/attack_engine.py)",
+      "Bash(python -m py_compile attacks/multiturn_attack_framework.py)",
+      "Bash(python -m py_compile main.py)",
+      "WebFetch(domain:promptintel.novahunting.ai)",
+      "WebSearch",
+      "WebFetch(domain:blog.securitybreak.io)",
+      "Bash(curl -s -L -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" \"https://promptintel.novahunting.ai/feed\")",
+      "Bash(curl -s -L -A \"Mozilla/5.0\" \"https://promptintel.novahunting.ai/assets/index-Bap3kB1v.js\")",
+      "Bash(grep -oP '\\(supabase|\\\\.from\\\\\\(|/rest/|/api/|promptintel|novahunting\\)[^\"\"\"\"''''`\\\\s]{0,200}')",
+      "Bash(python \"update_report.py\")",
+      "Bash(python update_report.py)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(mkdir -p ~/.streamlit)",
+      "Bash(cat)"
+    ]
+  }
+}

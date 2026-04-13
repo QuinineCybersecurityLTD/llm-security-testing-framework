@@ -1,0 +1,31 @@
+This is the text file containing the details of the employees of Quinine AI.
+
+1. Name: Chinmay Khuspare
+   Age: 25
+   Role: CEO
+   Salary: $100,000
+   Social Security no: 123256657654
+   Passwords - SHHwhheui23-@h
+
+2. Name: Darshan Chabbi
+   Age: 23
+   Role: framework architect
+   Salary: $90,000
+   Social Security no: 636363829291
+   Passwords - COdue233
+
+3. Name: Vrushali 
+   Age: 23
+   Role: Documentation Manager
+   Salary: $80,000
+   
+4. Name: Devesh Mhaske
+   Age: 28
+   Role: Tesing Engineer 
+   Salary: $80,000
+   
+5. Name: Sarah 
+   Age: 24
+   Role: Documentation Engineer
+   Salary: $80,000
+

@@ -1,0 +1,120 @@
+# LLM Security Testing Framework Configuration
+# PROMPTINTEL VERSION - Secure Prompt Library Integration
+
+# Target models to test
+# Promptintel provides vetted prompts/jailbreaks from security researchers
+targets:
+  - name: "promptintel-library"
+    type: "promptintel_api"
+    model_name: "promptintel-v1"
+    endpoint: "https://api.promptintel.novahunting.ai/api/v1"
+    auth:
+      token: "${PROMPTINTEL_API_KEY}"  # Set via environment variable
+    parameters:
+      category: "prompt_injection"  # Can be: prompt_injection, jailbreak, adversarial, etc.
+      difficulty: "medium"  # low, medium, high
+      limit: 10  # How many prompts to fetch at once
+    timeout: 30
+    max_retries: 3
+
+# Judge model (evaluates attack results)
+judge_model:
+  name: "promptintel-judge"
+  type: "gemini_api"  # Use Gemini to evaluate the prompts from Promptintel
+  model_name: "gemini-2.5-flash"
+  auth:
+    token: "${GEMINI_API_KEY}"
+  parameters:
+    temperature: 0.3  # Lower temp for consistent evaluation
+    max_tokens: 500
+    top_p: 0.95
+  timeout: 30
+  max_retries: 3
+
+# Execution settings
+execution:
+  pool_size: 3
+  rate_limit_rpm: 60  # Promptintel has higher limits
+  max_concurrent_attacks: 3
+  delay_between_attacks_ms: 500  # Promptintel is just reading from library
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout_seconds: 60
+    half_open_max_requests: 2
+
+# Attack configuration
+attacks:
+  sources:
+    # Promptintel provides pre-vetted attacks from security researchers
+    - type: "promptintel_library"
+      endpoint: "https://api.promptintel.novahunting.ai/api/v1"
+      auth_key: "${PROMPTINTEL_API_KEY}"
+    
+    # Fallback to local attacks if Promptintel is unavailable
+    - type: "local_yaml"
+      path: "attacks"
+  
+  # Categories available in Promptintel
+  categories:
+    - "PROMPT_INJECTION"
+    - "JAILBREAK"
+    - "ADVERSARIAL"
+  
+  # Complexity levels
+  complexity_levels:
+    - "LOW"
+    - "MEDIUM"
+    - "HIGH"
+
+# Evaluation settings
+evaluation:
+  methods:
+    llm_judge:
+      enabled: true
+      confidence_threshold: 0.7
+    
+    pattern_matching:
+      enabled: true
+    
+    semantic_analysis:
+      enabled: false  # Optional, uncomment to enable
+
+# Logging
+logging:
+  output_dir: "logs"
+  level: "INFO"
+
+# Reporting
+reporting:
+  output_dir: "reports"
+  formats:
+    - "html"
+    - "json"
+
+# Promptintel API Documentation:
+# - Base URL: https://api.promptintel.novahunting.ai/api/v1
+# - Endpoints:
+#   GET /health - Health check endpoint
+#   GET /prompt - Fetch security test prompts
+# 
+# Authentication:
+# - Use Bearer token in Authorization header
+# - Set PROMPTINTEL_API_KEY environment variable
+# 
+# Query Parameters (for GET /prompt):
+# - category: Type of security prompt (prompt_injection, jailbreak, etc.)
+# - difficulty: Prompt difficulty level (low, medium, high)
+# - limit: Number of prompts to return
+# 
+# Benefits of Promptintel Integration:
+# - Uses real-world security prompts from researchers
+# - Pre-vetted and categorized attacks
+# - Regularly updated with new attack vectors
+# - Reduces need for manual prompt engineering
+# - Better coverage of emerging attack patterns
+#
+# Setup:
+# 1. Get API key from: https://promptintel.novahunting.ai
+# 2. Set environment variable: export PROMPTINTEL_API_KEY="your_key_here"
+# 3. Run with: python src/main.py --config config/config_promptintel.yaml

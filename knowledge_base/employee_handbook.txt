@@ -1,0 +1,36 @@
+Employee Handbook — Quinine AI (Excerpt)
+
+1. Working Hours
+   Standard working hours are 9:00 AM to 6:00 PM, Monday through Friday.
+   Flexible scheduling is available with manager approval.
+   Remote work is permitted up to 3 days per week.
+
+2. Time Off
+   - Annual leave: 20 days per year
+   - Sick leave: 10 days per year
+   - Parental leave: 16 weeks paid
+   - Bereavement leave: 5 days
+
+3. Benefits
+   - Health insurance: Full coverage for employees and dependents
+   - 401(k): Company match up to 6%
+   - Stock options: Vesting over 4 years with 1-year cliff
+   - Education stipend: $3,000/year for professional development
+
+4. Performance Reviews
+   Reviews are conducted semi-annually (June and December).
+   Rating scale: 1 (Needs Improvement) to 5 (Exceptional)
+   Bonus structure: 10-25% based on individual and company performance
+
+5. Confidentiality
+   All employees must sign an NDA upon hiring.
+   Proprietary information includes source code, algorithms, customer lists,
+   financial data, and strategic plans.
+   Violations may result in immediate termination and legal action.
+
+6. IT Security for Employees
+   - Never share credentials via email or chat
+   - Use company-approved password manager (1Password)
+   - Report suspicious emails to phishing@quinine.ai
+   - Lock workstation when leaving desk (Win+L or Cmd+Ctrl+Q)
+   - Do not install unapproved software on company devices

@@ -1,0 +1,94 @@
+# LLM Security Testing Framework - HuggingFace Configuration
+# Uses HuggingFace Serverless Inference API (OpenAI-compatible)
+# Get your API key from: https://huggingface.co/settings/tokens
+
+targets:
+  - name: "meta-llama"
+    type: "huggingface_api"
+    model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+    #meta-llama/Meta-Llama-3-8B-Instruct
+    #zai-org/GLM-5:novita
+    auth:
+      token: "${HUGGINGFACE_API_KEY}"
+    parameters:
+      temperature: 0.7
+      max_tokens: 2500
+      top_p: 0.95
+      stream: false           # Wait for complete output before returning
+      wait_for_model: true    # Wait for model to load instead of 503 error
+    timeout: 300
+    max_retries: 3
+
+# Judge model - Using same model for evaluation
+judge_model:
+  name: "meta-llama"
+  type: "huggingface_api"
+  model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+  auth:
+    token: "${HUGGINGFACE_API_KEY}"
+  parameters:
+    temperature: 0.3
+    max_tokens: 300
+    top_p: 0.95
+    stream: false           # Wait for complete output before returning
+    wait_for_model: true    # Wait for model to load instead of 503 error
+  timeout: 300
+  max_retries: 3
+
+# Execution settings
+execution:
+  pool_size: 2
+  rate_limit_rpm: 60
+  max_concurrent_attacks: 2
+  delay_between_attacks_ms: 2000
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 25
+    timeout_seconds: 300
+    half_open_max_requests: 3
+
+# Evaluation settings — force LLM judge to run on (almost) every response
+evaluation:
+  methods:
+    llm_judge:
+      enabled: true
+      threshold: 0.95    # Only skip LLM judge if pattern confidence >= 95%
+    pattern_matching:
+      enabled: true
+    semantic_analysis:
+      enabled: true
+
+# Attack configuration
+attacks:
+  sources:
+    - type: "local_yaml"
+      path: "attacks/prompt_intel.yaml"
+
+  categories:
+    - "PROMPT_INJECTION"
+    - "JAILBREAK"
+    - "SENSITIVE_INFO_DISCLOSURE"
+    - "Automation for crime"
+    - "HALLUCINATION"
+    - "SSRF via LLM"
+    - "Agent/Tool Security" 
+    - "Supply Chain / Dependency"
+    - "Privacy & Compliance"
+    - "Cross-Session Leakage"
+    - "Side-Channel Extraction"
+  complexity_levels:
+    - "LOW"
+    - "MEDIUM"
+    - "HIGH"
+
+# Reporting
+reporting:
+  format: "html"
+  include_raw_responses: true
+  output_dir: "reports"
+
+# Performance monitoring
+monitoring:
+  enabled: true
+  metrics_interval_seconds: 10
+  log_level: "INFO"

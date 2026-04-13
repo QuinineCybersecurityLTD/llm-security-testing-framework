@@ -1,0 +1,134 @@
+# Set GGUF_MODEL_PATH environment variable to point to your local GGUF model file
+# Example: export GGUF_MODEL_PATH=/path/to/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+
+# LLM Security Testing Framework Configuration
+# OLLAMA VERSION - Local Model Support (FREE & UNLIMITED)
+
+# Target models to test
+# Ollama runs models locally - no API costs, no rate limits!
+targets:
+  - name: "gpt-oss"
+    type: "ollama"
+    model_name: "gpt-oss"  # Changed from 'mistral' - llama2 is more stable
+    endpoint: "http://localhost:11434"  # Default Ollama endpoint
+    parameters:
+      temperature: 0.7      # Higher = more creative responses
+      max_tokens: 3000       # Max response length
+      top_p: 0.9           # Nucleus sampling
+    timeout: 120            # Local models might be slower on first request
+    max_retries: 2
+
+# Judge model (evaluates attack results)
+# Using neural-chat: fast, lightweight, good at classification
+# Pull it first: ollama pull neural-chat
+judge_model:
+  name: "mistral-judge-gguf"
+  type: "local_gguf"
+  model_name: "${GGUF_MODEL_PATH}"
+  parameters:
+    temperature: 0.5  # Lower for consistent evaluation
+    max_tokens: 1000
+    top_p: 0.9
+  timeout: 120
+  max_retries: 2
+
+# Execution settings - Can be aggressive with local models
+execution:
+  pool_size: 5              # Number of parallel connections
+  rate_limit_rpm: 60        # No rate limits for local!
+  max_concurrent_attacks: 3 # Parallel executions
+  delay_between_attacks_ms: 500  # Minimal delay
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout_seconds: 60
+    half_open_max_requests: 2
+
+# Attack configuration
+attacks:
+  sources:
+    - type: "local_yaml"
+      path: "attacks"  # Load attacks from local YAML files
+
+  categories:
+    - "PROMPT_INJECTION"
+    - "JAILBREAK"
+    - "PII_LEAKAGE"
+
+  complexity_levels:
+    - "LOW"
+    - "MEDIUM"
+    - "HIGH"
+
+# Evaluation settings
+evaluation:
+  methods:
+    llm_judge:
+      enabled: true
+      confidence_threshold: 0.7
+
+    pattern_matching:
+      enabled: true
+
+    semantic_analysis:
+      enabled: false
+
+# Logging
+logging:
+  output_dir: "logs"
+  level: "INFO"
+
+# Reporting
+reporting:
+  output_dir: "reports"
+  formats:
+    - "html"
+    - "json"
+
+# ==================== OLLAMA SETUP GUIDE ====================
+#
+# Ollama runs LLMs locally on your machine - completely free and unlimited!
+#
+# INSTALLATION:
+# 1. Download Ollama from: https://ollama.ai
+# 2. Install and run: ollama serve
+# 3. In another terminal, pull a model: ollama pull llama2
+#
+# POPULAR MODELS:
+# - llama2        : Powerful general-purpose model (7B, 13B, 70B variants)
+# - mistral       : Fast and efficient (7B)
+# - neural-chat   : Great for Q&A and judgement tasks
+# - yi             : Good performance for size
+# - openchat      : Competitive alternative to ChatGPT
+# - codellama     : Specialized for code
+# - orca          : Good instruction following
+# - dolphin       : Uncensored model (experimental)
+#
+# PULL A MODEL:
+# $ ollama pull llama2
+# $ ollama pull mistral
+# $ ollama list          # See installed models
+#
+# HARDWARE REQUIREMENTS:
+# Minimum: 8GB RAM + GPU recommended
+# - For 7B models: 8GB RAM / 6GB VRAM
+# - For 13B models: 16GB RAM / 10GB VRAM
+# - For 70B models: 48GB+ RAM / 24GB+ VRAM
+#
+# CUSTOMIZE SETTINGS:
+# You can modify parameters in the 'parameters' section above:
+# - temperature: 0.0 (precise) to 2.0 (creative)
+# - max_tokens: Lower for speed, higher for detail
+# - top_p: 0.0-1.0, lower for focused responses
+#
+# ADVANTAGES OF LOCAL TESTING:
+# ✓ No API costs
+# ✓ No rate limits
+# ✓ Full privacy (data stays local)
+# ✓ Complete control over model behavior
+# ✓ Perfect for security research and jailbreak testing
+# ✓ Can test against your custom fine-tuned models
+#
+# RUN WITH OLLAMA CONFIG:
+# $ export OLLAMA_HOST=http://localhost:11434
+# $ python src/main.py --config config/config_ollama.yaml

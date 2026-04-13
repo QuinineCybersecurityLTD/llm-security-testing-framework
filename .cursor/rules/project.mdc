@@ -1,0 +1,24 @@
+---
+description: LLM Security Testing Framework — Quinine Cybersecurity
+globs: ["**/*.py", "attacks/**/*.yaml", "config/**/*.yaml"]
+---
+
+This is an enterprise-grade LLM security testing framework that red-teams AI models for vulnerabilities.
+
+Read `CLAUDE.md` for full architecture. Read `MEMORY.md` for current state and known issues.
+
+## Core Pipeline
+
+```
+YAML Attacks → AttackEngine → Orchestrator → Model Adapter → Evaluator → Reporter
+                                  ↓
+                          Circuit Breaker + Rate Limiter
+```
+
+## Key Facts
+
+- 4-tier classification: CLEAN_REFUSAL | PARTIAL_LEAKAGE | UNSAFE_COMPLIANCE | FULLY_VULNERABLE
+- Attack IDs: Q9-{SCOPE}-{TYPE}-{NNN} (e.g., Q9-LLM-PI-001)
+- All file paths use pathlib.Path relative to PROJECT_ROOT
+- All API keys from environment variables — never hardcoded
+- `knowledge_base/API_keys.txt` is INTENTIONAL test data for RAG leakage testing

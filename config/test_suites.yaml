@@ -1,0 +1,139 @@
+# Test Suite Configuration
+# Define multiple test scenarios to run with batch testing
+
+# Test suites allow you to run multiple test configurations with different
+# objectives, complexity levels, and model targets in a single batch execution
+
+test_suites:
+  # Suite 1: Quick Validation (5-10 minutes)
+  - name: "⚡ Quick Validation - Low Complexity"
+    description: "Fast baseline security check with low-complexity attacks"
+    categories:
+      - "PROMPT_INJECTION"
+    complexity_levels:
+      - "LOW"
+    models:
+      - null  # null means test all available models in config
+    estimated_time: "5-10 minutes"
+    best_for: "Quick validation, CI/CD pipelines, development testing"
+  
+  # Suite 2: Comprehensive Security Test (30-60 minutes)
+  - name: "🔍 Comprehensive Security Test"
+    description: "Full security assessment with multiple attack categories"
+    categories:
+      - "PROMPT_INJECTION"
+      - "JAILBREAK"
+      - "PII_LEAKAGE"
+    complexity_levels:
+      - "LOW"
+      - "MEDIUM"
+      - "HIGH"
+    models:
+      - null  # All models
+    estimated_time: "30-60 minutes"
+    best_for: "Production security assessment, compliance testing"
+  
+  # Suite 3: Jailbreak-Focused Test (15-30 minutes)
+  - name: "🔓 Jailbreak Resistance Test"
+    description: "Specialized testing for jailbreak vulnerabilities"
+    categories:
+      - "JAILBREAK"
+    complexity_levels:
+      - "MEDIUM"
+      - "HIGH"
+    models:
+      - null
+    estimated_time: "15-30 minutes"
+    best_for: "Safety testing, adversarial robustness evaluation"
+  
+  # Suite 4: PII/Privacy Test (10-20 minutes)
+  - name: "🔐 PII & Privacy Test"
+    description: "Evaluation of sensitive information handling"
+    categories:
+      - "PII_LEAKAGE"
+      - "SENSITIVE_INFO_DISCLOSURE"
+    complexity_levels:
+      - "MEDIUM"
+      - "HIGH"
+    models:
+      - null
+    estimated_time: "10-20 minutes"
+    best_for: "Privacy compliance, data protection assessment"
+  
+  # Suite 5: Individual Model Testing
+  - name: "📊 Compare All Installed Models"
+    description: "Run the same test suite against each model individually"
+    categories:
+      - "PROMPT_INJECTION"
+      - "JAILBREAK"
+    complexity_levels:
+      - "LOW"
+      - "MEDIUM"
+    models:
+      - null  # Tests each registered model one by one
+    estimated_time: "20-40 minutes (varies by model)"
+    best_for: "Model comparison, benchmarking, provider evaluation"
+
+# Custom test suite examples (uncomment to use)
+# - name: "My Custom Test"
+#   description: "Custom test scenario"
+#   categories:
+#     - "PROMPT_INJECTION"
+#   complexity_levels:
+#     - "LOW"
+#   models:
+#     - "gemini-flash"  # Specific model
+#   estimated_time: "5-10 minutes"
+#   best_for: "Specific use case"
+
+# Test execution settings
+execution:
+  # Run test suites in parallel (uses more resources) or sequentially?
+  parallel: false
+  
+  # Max concurrent test suites when parallel=true
+  max_concurrent_suites: 2
+  
+  # Save results for each suite separately?
+  save_individual_reports: true
+  
+  # Generate combined report across all suites?
+  generate_combined_report: true
+  
+  # Stop on first failure?
+  fail_fast: false
+
+# Reporting settings
+reporting:
+  # Output directory for all reports
+  output_dir: "reports"
+  
+  # Generate comparative reports?
+  generate_comparison: true
+  
+  # Include model performance metrics in comparison?
+  include_metrics: true
+  
+  # Email results (optional - requires configuration)
+  email_results: false
+  email_to: "security@example.com"
+
+# Notes on Test Suites:
+# 
+# Each test suite can have:
+#   - name: Human-readable name (appears in reports)
+#   - description: What the suite tests
+#   - categories: Attack categories to include
+#   - complexity_levels: Complexity levels to test
+#   - models: Specific models to test (null = all in config)
+#   - estimated_time: Approximate duration
+#   - best_for: Recommended use cases
+#
+# To run a specific suite:
+#   python src/main.py --mode=batch --suite="Quick Validation"
+#
+# To run all suites:
+#   python src/main.py --mode=batch
+#
+# Results: Each suite generates separate HTML and JSON reports,
+# plus an optional combined report comparing all suites.

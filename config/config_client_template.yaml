@@ -1,0 +1,169 @@
+# ============================================================================
+# Quinine LLM Security Testing Framework — CLIENT ONBOARDING TEMPLATE
+# ============================================================================
+# Copy this file and fill in your client's details before running tests.
+#
+# ENVIRONMENT VARIABLES REQUIRED:
+#   CLIENT_API_KEY    — API key for the client's LLM/RAG endpoint
+#   JUDGE_API_KEY     — API key for the judge model (Gemini recommended for cost)
+#   GGUF_MODEL_PATH   — (Optional) Path to local GGUF model for offline judging
+#
+# USAGE:
+#   cp config/config_client_template.yaml config/config_client_<name>.yaml
+#   # Edit the new file with client details
+#   python src/main.py --config config/config_client_<name>.yaml
+# ============================================================================
+
+# ─── Client Information (for report headers) ──────────────────────────
+client:
+  name: "Client Name"
+  engagement_id: "Q9-ENG-2026-001"
+  scope: "LLM Security Assessment"          # or "RAG Security Assessment" or "Full Stack"
+  contact: "client-contact@example.com"
+  classification: "CONFIDENTIAL"
+
+# ─── Target Model Configuration ───────────────────────────────────────
+# The client's LLM that we are testing. Supports ANY access format:
+#
+# FORMAT 1: OpenAI-compatible API (most common — works with Azure, vLLM, LiteLLM, etc.)
+#   type: openai_api
+#   endpoint: "https://api.openai.com/v1"   # or client's custom endpoint
+#   model_name: "gpt-4o"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+# FORMAT 2: Anthropic API
+#   type: anthropic_api
+#   model_name: "claude-sonnet-4-20250514"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+# FORMAT 3: Google Gemini
+#   type: gemini_api
+#   model_name: "gemini-2.5-flash"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+# FORMAT 4: HuggingFace Inference API
+#   type: huggingface_api
+#   model_name: "meta-llama/Llama-3-70b-chat-hf"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+# FORMAT 5: Ollama (local)
+#   type: ollama
+#   endpoint: "http://localhost:11434"
+#   model_name: "llama3"
+#
+# FORMAT 6: Local GGUF file
+#   type: local_gguf
+#   model_name: "${GGUF_MODEL_PATH}"
+#
+# FORMAT 7: Custom REST API (any endpoint that accepts POST with JSON body)
+#   type: custom_rest
+#   endpoint: "https://client-llm.example.com/v1/chat"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+# FORMAT 8: AWS Bedrock (use custom_rest — native adapter coming soon)
+#   type: custom_rest
+#   endpoint: "https://bedrock-runtime.us-east-1.amazonaws.com/model/anthropic.claude-3-sonnet/invoke"
+#   auth.token: "${CLIENT_API_KEY}"
+#   parameters:
+#     request_body_template: '{"inputText": "{input}"}'
+#     response_field: "results.0.outputText"
+#
+# FORMAT 9: Azure OpenAI
+#   type: azure_openai
+#   endpoint: "https://client-resource.openai.azure.com/"
+#   model_name: "gpt-4o-deployment-name"
+#   auth.token: "${CLIENT_API_KEY}"
+#
+targets:
+  - name: "client-model"
+    type: "openai_api"                       # ← Change to client's format
+    endpoint: "https://api.openai.com/v1"    # ← Client's endpoint
+    model_name: "gpt-4o"                     # ← Client's model
+    auth:
+      token: "${CLIENT_API_KEY}"
+    parameters:
+      temperature: 0.7
+      max_tokens: 4000
+    timeout: 120
+    max_retries: 3
+
+# ─── Judge Model (evaluates responses — use a different model than target) ─
+# Recommended: Use Gemini Flash (free tier) or a local GGUF for judging
+judge_model:
+  name: "gemini-judge"
+  type: "gemini_api"
+  model_name: "gemini-2.5-flash"
+  auth:
+    token: "${JUDGE_API_KEY}"
+  parameters:
+    temperature: 0.3
+    max_tokens: 1000
+  timeout: 120
+  max_retries: 2
+
+# ─── RAG Testing Configuration (if client has a RAG system) ───────────
+# See config/config_client_rag_template.yaml for full RAG testing setup
+rag_testing:
+  enabled: false                             # Set to true if testing client's RAG
+
+# ─── Execution Settings ───────────────────────────────────────────────
+execution:
+  pool_size: 3
+  rate_limit_rpm: 30                         # Adjust to client's API rate limit
+  rate_limit_tpm: 100000
+  max_concurrent_attacks: 3
+  delay_between_attacks_ms: 2000             # Conservative — increase if rate limited
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    timeout_seconds: 120
+    half_open_max_requests: 2
+
+# ─── Attack Configuration ─────────────────────────────────────────────
+attacks:
+  sources:
+    - type: "local_yaml"
+      path: "attacks"                        # Load ALL attack YAML files
+
+  # Categories to test (uncomment/add as needed)
+  categories:
+    - "PROMPT_INJECTION"
+    - "JAILBREAK"
+    - "SENSITIVE_INFO_DISCLOSURE"
+    - "PII_LEAKAGE"
+    - "INSECURE_OUTPUT"
+    - "EXCESSIVE_AGENCY"
+    - "OVERRELIANCE"
+    # Advanced categories:
+    # - "ENCODING_BYPASS"
+    # - "MULTILINGUAL"
+    # - "MANY_SHOT"
+    # - "MULTI_TURN_ATTACK"
+    # - "HALLUCINATION_ATTACK"
+
+  complexity_levels:
+    - "LOW"
+    - "MEDIUM"
+    - "HIGH"
+
+# ─── Evaluation Settings ──────────────────────────────────────────────
+evaluation:
+  methods:
+    llm_judge:
+      enabled: true
+      confidence_threshold: 0.7
+    pattern_matching:
+      enabled: true
+    semantic_analysis:
+      enabled: true
+
+# ─── Logging & Reporting ──────────────────────────────────────────────
+logging:
+  output_dir: "logs"
+  level: "INFO"
+
+reporting:
+  output_dir: "reports"
+  formats:
+    - "html"
+    - "json"

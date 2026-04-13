@@ -1,0 +1,90 @@
+# ============================================================================
+# Quinine RAG Server Configuration
+# ============================================================================
+#
+# This configures the FastAPI RAG server (src/rag/rag_server.py).
+# The server wraps RAGPipeline and exposes HTTP endpoints for:
+#   - Testing client_rag_tester.py against a real RAG endpoint
+#   - Serving as a company-usable RAG service
+#
+# Usage:
+#   cd src && python -m rag.rag_server --config ../config/config_rag_server.yaml
+#
+# Environment variables can be used with ${VAR_NAME} syntax.
+# CLI flags (--port, --host) override these values.
+# Environment variables (RAG_SERVER_PORT, etc.) override YAML values.
+# ============================================================================
+
+# ─── Server Settings ────────────────────────────────────────────────
+server:
+  host: "0.0.0.0"
+  port: 8000
+  # API key for authentication. Clients must send this via:
+  #   X-API-Key header, OR
+  #   Authorization: Bearer <key>
+  # Leave empty to disable authentication.
+  api_key: "${RAG_API_KEY}"
+
+# ─── RAG Pipeline Settings ─────────────────────────────────────────
+rag:
+  # Path to knowledge base directory (absolute or relative to project root)
+  knowledge_base: "knowledge_base"
+
+  # Retrieval settings
+  top_k: 5                        # Number of chunks to retrieve per query
+  similarity_threshold: 0.1       # Minimum cosine similarity to include a chunk (lower = more results)
+  chunk_size: 512                 # Words per chunk
+  chunk_overlap: 50               # Overlapping words between chunks
+  use_dense_vectors: false        # true = sentence-transformers, false = TF-IDF
+
+  # Optional: custom system prompt for RAG generation
+  # system_prompt: "You are a helpful assistant. Answer using only the provided context."
+
+# ─── Model Configuration ───────────────────────────────────────────
+# The model used for the "generation" step of RAG.
+# If omitted or model name is empty, the server runs in retrieval-only mode.
+#
+# Supported types: openai_api, anthropic_api, gemini_api, local_gguf,
+#                  ollama, huggingface_api, custom_rest
+# model:
+#   type: "gemini_api"
+#   name: "gemini-2.5-flash"
+#   # endpoint: ""                  # Optional: custom endpoint URL
+#   api_key: "${GEMINI_API_KEY}"
+#   parameters:
+#     temperature: 0.7
+#     max_tokens: 2000
+#     timeout: 60
+#     max_retries: 2
+
+# ─── Example: Ollama (local, free) ─────────────────────────────────
+# model:
+#   type: "ollama"
+#   name: "llama3.2"
+#   endpoint: "http://localhost:11434"
+#   parameters:
+#     temperature: 0.7
+#     max_tokens: 2000
+
+# ─── Example: OpenAI ───────────────────────────────────────────────
+# model:
+#   type: "openai_api"
+#   name: "gpt-4o-mini"
+#   api_key: "${OPENAI_API_KEY}"
+#   parameters:
+#     temperature: 0.7
+#     max_tokens: 2000
+
+# ─── Ollama (active) ─────────────────────────────────────────────
+model:
+  type: "ollama"
+  name: "llama3.2:1b"
+  endpoint: "http://localhost:11434"
+  parameters:
+    temperature: 0.7
+    max_tokens: 2000
+
+# ─── Example: Retrieval-only (no model) ───────────────────────────
+# model:
+#   type: "openai_api"
+#   name: ""                      # Empty name = retrieval-only mode

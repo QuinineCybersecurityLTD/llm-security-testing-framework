@@ -1,0 +1,85 @@
+# LLM Security Testing Framework Configuration
+# IMPROVED VERSION - Conservative Rate Limiting
+
+# Target models to test
+targets:
+  - name: "gpt-4-production"
+    type: "openai_api"
+    model_name: "gpt-3.5-turbo"  # Use cheaper model for testing
+    endpoint: "https://api.openai.com/v1/chat/completions"
+    auth:
+      token: "${OPENAI_API_KEY}"  # Set via environment variable
+    parameters:
+      temperature: 0.7
+      max_tokens: 2000  # Increased for complete responses
+    timeout: 30
+    max_retries: 3
+
+# Judge model (evaluates attack results)
+judge_model:
+  name: "gpt-4-judge"
+  type: "openai_api"
+  model_name: "gpt-3.5-turbo"  # Use same cheaper model
+  endpoint: "https://api.openai.com/v1/chat/completions"
+  auth:
+    token: "${OPENAI_API_KEY}"
+  parameters:
+    temperature: 0.3  # Lower temp for more consistent evaluation
+    max_tokens: 300
+  timeout: 30
+  max_retries: 3
+
+# Execution settings - CONSERVATIVE LIMITS
+execution:
+  pool_size: 2  # Reduced from 10 - fewer concurrent connections
+  rate_limit_rpm: 5  # Reduced from 60 - only 5 requests per minute
+  max_concurrent_attacks: 1  # Only 1 attack at a time
+  delay_between_attacks_ms: 3000  # 3 second delay between attacks
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 3  # Open circuit after 3 failures
+    timeout_seconds: 60
+    half_open_max_requests: 2
+
+# Attack configuration
+attacks:
+  sources:
+    - type: "local_yaml"
+      path: "attacks"  # Directory containing YAML attack files
+  
+  # Only test these categories initially
+  categories:
+    - "PROMPT_INJECTION"
+    # - "JAILBREAK"  # Comment out to reduce number of tests
+    # - "PII_LEAKAGE"
+  
+  # Only test low complexity attacks initially
+  complexity_levels:
+    - "LOW"
+    # - "MEDIUM"  # Comment out
+    # - "HIGH"    # Comment out
+
+# Evaluation settings
+evaluation:
+  methods:
+    llm_judge:
+      enabled: true
+      confidence_threshold: 0.7
+    
+    pattern_matching:
+      enabled: true  # Fast, doesn't use API calls
+    
+    semantic_analysis:
+      enabled: false  # Disable to avoid extra API calls
+
+# Logging
+logging:
+  output_dir: "logs"
+  level: "INFO"
+
+# Reporting
+reporting:
+  output_dir: "reports"
+  formats:
+    - "html"
+    - "json"
