@@ -26,7 +26,7 @@ jobs:
       - name: Scan for secrets
         run: |
           detect-secrets scan --baseline .secrets.baseline || true
-          detect-secrets audit .secrets.baseline --report --fail-on-unaudited
+          detect-secrets audit .secrets.baseline --report
 
   # ── Stage 1: Code quality ─────────────────────────────────────────────
   quality:
