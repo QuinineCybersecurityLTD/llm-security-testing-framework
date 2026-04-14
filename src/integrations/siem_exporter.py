@@ -54,6 +54,30 @@ CLASSIFICATION_SEVERITY = {
     "FULLY_VULNERABLE": 10,
 }
 
+# v4.0 — MCP and Multi-Agent event type mappings for SIEM correlation
+MCP_EVENT_TYPES = {
+    "MCP_TOOL_POISONING": "mcp.tool.poisoning",
+    "MCP_TRANSPORT_EXPLOIT": "mcp.transport.exploit",
+    "MCP_SCOPE_CREEP": "mcp.scope.creep",
+    "MCP_CONFUSED_DEPUTY": "mcp.confused.deputy",
+    "MCP_GATEWAY_BYPASS": "mcp.gateway.bypass",
+    "MCP_JSON_RPC_FUZZING": "mcp.jsonrpc.fuzz",
+    "MCP_LOCAL_SERVER_EXPLOIT": "mcp.localserver.exploit",
+    "MCP_DYNAMIC_TOOL_MANIPULATION": "mcp.dynamictool.manipulation",
+    "MCP_CROSS_ORIGIN_FORGERY": "mcp.crossorigin.forgery",
+}
+
+MULTI_AGENT_EVENT_TYPES = {
+    "CONTEXT_CONTAMINATION": "agent.context.contamination",
+    "CAPABILITY_ESCALATION": "agent.capability.escalation",
+    "DELEGATION_CHAIN_EXPLOIT": "agent.delegation.exploit",
+    "SHARED_STATE_POISONING": "agent.state.poisoning",
+    "ORCHESTRATOR_BYPASS": "agent.orchestrator.bypass",
+    "HITL_CIRCUMVENTION": "agent.hitl.circumvention",
+    "CROSS_BOUNDARY_TOOL_ABUSE": "agent.crossboundary.abuse",
+    "AGENT_COLLUSION": "agent.collusion",
+}
+
 CEF_SEVERITY_MAP = {
     1: "Low",
     5: "Medium",
@@ -106,13 +130,21 @@ class SIEMExporter:
             prompt = getattr(attack_result, 'prompt', '') or ''
             response = getattr(attack_result, 'response', '') or ''
 
+            # v4.0 — Enrich with MCP/multi-agent event type if applicable
+            event_subtype = ""
+            cat_upper = category.upper().replace(" ", "_").replace("-", "_")
+            if cat_upper in MCP_EVENT_TYPES:
+                event_subtype = MCP_EVENT_TYPES[cat_upper]
+            elif cat_upper in MULTI_AGENT_EVENT_TYPES:
+                event_subtype = MULTI_AGENT_EVENT_TYPES[cat_upper]
+
             events.append(SIEMEvent(
                 event_id=str(uuid.uuid4()),
                 timestamp=datetime.now(timezone.utc).isoformat(),
                 severity=severity,
                 attack_id=getattr(attack_result, 'attack_id', 'unknown'),
                 attack_name=getattr(attack_result, 'attack_name', 'unknown'),
-                category=category,
+                category=f"{category}|{event_subtype}" if event_subtype else category,
                 classification=classification,
                 confidence=getattr(eval_result, 'confidence', 0.0),
                 owasp_ref=owasp,

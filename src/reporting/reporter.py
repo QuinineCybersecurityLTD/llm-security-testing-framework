@@ -184,6 +184,31 @@ OWASP_RISK_MAP: Dict[str, str] = {
     "Context Overflow / DoS":            "RR-RAG-10",
     "Indirect RAG Injection":            "RR-RAG-01",
     "Vector Embedding Weakness":         "RR-RAG-02",
+    # MCP risks (v4.0)
+    "MCP Tool Poisoning":                "RR-LLM-11",
+    "MCP Transport Exploit":             "RR-LLM-12",
+    "MCP Scope Creep":                   "RR-LLM-13",
+    "MCP Confused Deputy":               "RR-LLM-13",
+    "MCP Gateway Bypass":                "RR-LLM-12",
+    "MCP JSON-RPC Fuzzing":              "RR-LLM-12",
+    "MCP Local Server Exploit":          "RR-LLM-12",
+    "MCP Dynamic Tool Manipulation":     "RR-LLM-11",
+    "MCP Cross-Origin Forgery":          "RR-LLM-12",
+    # Vector-space RAG risks (v4.0)
+    "Vector-Space IDOR":                 "RR-RAG-11",
+    "Embedding Inversion":               "RR-RAG-12",
+    "Membership Inference":              "RR-RAG-12",
+    "Subspace Projection Poisoning":     "RR-RAG-11",
+    "Re-ranking Manipulation":           "RR-RAG-11",
+    # Multi-agent risks (v4.0)
+    "Multi-Agent Context Contamination": "RR-LLM-14",
+    "Capability Escalation":             "RR-LLM-14",
+    "Delegation Chain Exploit":          "RR-LLM-14",
+    "Orchestrator Bypass":               "RR-LLM-14",
+    "Agent Collusion":                   "RR-LLM-14",
+    # OWASP 2025 refined (v4.0)
+    "Unbounded Consumption":             "RR-LLM-09",
+    "Denial of Wallet":                  "RR-LLM-09",
 }
 
 # Attack category → OWASP LLM Top 10 reference
@@ -234,6 +259,32 @@ CATEGORY_OWASP_MAP: Dict[str, str] = {
     "Context Overflow / DoS":            "LLM10",
     "Indirect RAG Injection":            "LLM01",
     "Vector Embedding Weakness":         "LLM08",
+    # MCP categories (v4.0)
+    "MCP Tool Poisoning":                "LLM01",
+    "MCP Transport Exploit":             "LLM05",
+    "MCP Scope Creep":                   "LLM06",
+    "MCP Confused Deputy":               "LLM06",
+    "MCP Gateway Bypass":                "LLM05",
+    "MCP JSON-RPC Fuzzing":              "LLM05",
+    "MCP Local Server Exploit":          "LLM05",
+    "MCP Dynamic Tool Manipulation":     "LLM01",
+    "MCP Cross-Origin Forgery":          "LLM05",
+    # Vector-space categories (v4.0)
+    "Vector-Space IDOR":                 "LLM08",
+    "Embedding Inversion":               "LLM02",
+    "Membership Inference":              "LLM02",
+    "Subspace Projection Poisoning":     "LLM04",
+    "Re-ranking Manipulation":           "LLM08",
+    # Multi-agent categories (v4.0)
+    "Multi-Agent Context Contamination": "LLM01",
+    "Capability Escalation":             "LLM06",
+    "Delegation Chain Exploit":          "LLM06",
+    "Orchestrator Bypass":               "LLM01",
+    "Agent Collusion":                   "LLM08",
+    "HITL Circumvention":                "LLM06",
+    # OWASP 2025 refined (v4.0)
+    "Unbounded Consumption":             "LLM10",
+    "Denial of Wallet":                  "LLM10",
 }
 
 # V3: Threat ID map — Darshan's threat categories
@@ -284,6 +335,32 @@ THREAT_ID_MAP: Dict[str, str] = {
     "Context Overflow / DoS":            "LLM10-RAG Context Overflow / DoS",
     "Indirect RAG Injection":            "LLM01-RAG Indirect Injection via Retrieval",
     "Vector Embedding Weakness":         "LLM08-RAG Vector Embedding Weakness",
+    # MCP threat IDs (v4.0)
+    "MCP Tool Poisoning":                "MCP-01 Tool Poisoning / Adversarial Descriptions",
+    "MCP Transport Exploit":             "MCP-03 Transport Layer Exploit",
+    "MCP Scope Creep":                   "MCP-02 Scope Creep / Confused Deputy",
+    "MCP Confused Deputy":               "MCP-02 Scope Creep / Confused Deputy",
+    "MCP Gateway Bypass":                "MCP-05 Gateway Bypass",
+    "MCP JSON-RPC Fuzzing":              "MCP-03 JSON-RPC Protocol Fuzzing",
+    "MCP Local Server Exploit":          "MCP-04 Local Server Arbitrary Execution",
+    "MCP Dynamic Tool Manipulation":     "MCP-01 Dynamic Tool Discovery Manipulation",
+    "MCP Cross-Origin Forgery":          "MCP-03 Cross-Origin MCP Request Forgery",
+    # Vector-space threat IDs (v4.0)
+    "Vector-Space IDOR":                 "LLM08-VS Vector-Space IDOR",
+    "Embedding Inversion":               "LLM02-VS Embedding Inversion / Reconstruction",
+    "Membership Inference":              "LLM02-VS Membership Inference via Confidence",
+    "Subspace Projection Poisoning":     "LLM04-VS Subspace Projection Poisoning",
+    "Re-ranking Manipulation":           "LLM08-VS Cross-Encoder Re-ranking Manipulation",
+    # Multi-agent threat IDs (v4.0)
+    "Multi-Agent Context Contamination": "MAGENT-01 Cross-Boundary Context Contamination",
+    "Capability Escalation":             "MAGENT-02 Capability Laundering / Escalation",
+    "Delegation Chain Exploit":          "MAGENT-03 Delegation Chain Exploit",
+    "Orchestrator Bypass":               "MAGENT-04 Orchestrator Prompt Injection",
+    "Agent Collusion":                   "MAGENT-05 Agent Collusion / Info Aggregation",
+    "HITL Circumvention":                "MAGENT-06 Human-in-the-Loop Circumvention",
+    # OWASP 2025 refined (v4.0)
+    "Unbounded Consumption":             "LLM10 Unbounded Consumption",
+    "Denial of Wallet":                  "LLM10 Unbounded Consumption (Denial of Wallet)",
 }
 
 # V3: Component ID map — Darshan's affected components
@@ -334,6 +411,32 @@ COMPONENT_ID_MAP: Dict[str, str] = {
     "Context Overflow / DoS":            "Retriever / LLM Inference",
     "Indirect RAG Injection":            "Retriever / Document Store / LLM Context Assembly",
     "Vector Embedding Weakness":         "Embedding Model / Vector Database",
+    # MCP components (v4.0)
+    "MCP Tool Poisoning":                "MCP Server / Tool Registry / Tool Description Layer",
+    "MCP Transport Exploit":             "MCP Transport Layer (stdio/SSE/WebSocket)",
+    "MCP Scope Creep":                   "MCP Tool Authorization / Capability Boundary",
+    "MCP Confused Deputy":               "MCP Tool Authorization / Capability Boundary",
+    "MCP Gateway Bypass":                "MCP Gateway / Authentication Layer",
+    "MCP JSON-RPC Fuzzing":              "MCP JSON-RPC 2.0 Handler",
+    "MCP Local Server Exploit":          "MCP Local Server / Host Process",
+    "MCP Dynamic Tool Manipulation":     "MCP Tool Registry / Dynamic Discovery",
+    "MCP Cross-Origin Forgery":          "MCP Transport / Cross-Origin Policy",
+    # Vector-space components (v4.0)
+    "Vector-Space IDOR":                 "Vector Database / Retrieval Authorization Layer",
+    "Embedding Inversion":               "Embedding Model / Similarity API",
+    "Membership Inference":              "RAG Response / Confidence Calibration",
+    "Subspace Projection Poisoning":     "Embedding Model / Document Ingestion Pipeline",
+    "Re-ranking Manipulation":           "Cross-Encoder Re-ranker / Retrieval Pipeline",
+    # Multi-agent components (v4.0)
+    "Multi-Agent Context Contamination": "Inter-Agent Communication / Context Forwarding",
+    "Capability Escalation":             "Agent Capability Manager / Orchestrator",
+    "Delegation Chain Exploit":          "Delegation Router / Agent Chain Manager",
+    "Orchestrator Bypass":               "Orchestrator Task Decomposition / Planning",
+    "Agent Collusion":                   "Multi-Agent Data Aggregation / Privacy Layer",
+    "HITL Circumvention":                "Human Approval Gate / Emergency Protocol Handler",
+    # OWASP 2025 refined (v4.0)
+    "Unbounded Consumption":             "API Gateway / Token Budget / Rate Limiter",
+    "Denial of Wallet":                  "API Gateway / Cost Management / Rate Limiter",
 }
 
 # V3: Remediation map — Darshan's recommended remediations
@@ -358,6 +461,15 @@ REMEDIATION_MAP: Dict[str, str] = {
     "RR-RAG-08": "Apply least-privilege to all orchestrator tool grants; require human approval for all write actions; treat retrieved doc content as untrusted.",
     "RR-RAG-09": "Only use embedding models from verified, official sources with published checksums; monitor network egress during ingestion.",
     "RR-RAG-10": "Enforce configurable maximum top-K ceiling; add query complexity scoring to block pathological queries; implement per-user retrieval rate limits.",
+    # MCP remediations (v4.0)
+    "RR-LLM-11": "Validate all MCP tool descriptions server-side; enforce tool schema integrity via cryptographic signing; monitor tool registration for adversarial patterns; implement tool description allow-listing.",
+    "RR-LLM-12": "Enforce TLS on all MCP transports (SSE, WebSocket); validate JSON-RPC message schemas; implement request origin verification; deploy MCP gateway with authentication; rate-limit local server tool invocations.",
+    "RR-LLM-13": "Enforce least-privilege tool grants per MCP session; validate tool invocation scope against declared capabilities; detect and block confused-deputy patterns; implement capability attestation.",
+    # Vector-space RAG remediations (v4.0)
+    "RR-RAG-11": "Implement authorization-layer access controls independent of semantic similarity; detect adversarial embedding geometry manipulation at ingestion; monitor for systematic nearest-neighbor probing; enforce document-level ACLs in vector retrieval.",
+    "RR-RAG-12": "Never expose raw similarity scores or embedding vectors to end users; implement differential privacy on retrieval confidence signals; rate-limit iterative probing patterns; calibrate confidence to prevent membership inference.",
+    # Multi-agent remediations (v4.0)
+    "RR-LLM-14": "Sanitize all inter-agent messages at trust boundaries; enforce immutable per-agent capability sets at the orchestrator level; analyze composite delegation chains for dangerous compositions; require authenticated HITL gates that cannot be bypassed by urgency framing; implement provenance tracking on all shared state writes.",
 }
 
 

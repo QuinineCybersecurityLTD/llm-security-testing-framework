@@ -209,6 +209,49 @@ class CoverageDashboard:
             "coverage_pct": round(rag_coverage_pct, 1),
         }
 
+        # ── MCP coverage (v4.0) ──
+        mcp_defined = sum(1 for a in defined_attacks if a.get("_source_file", "").startswith("mcp"))
+        mcp_tags = sum(1 for a in defined_attacks if "mcp" in str(a.get("tags", [])).lower())
+        mcp_total_defined = max(mcp_defined, mcp_tags)
+        mcp_cats = {"MCP_TOOL_POISONING", "MCP_TRANSPORT_EXPLOIT", "MCP_SCOPE_CREEP",
+                     "MCP-TOOL-POISON", "MCP-TRANSPORT", "MCP-SCOPE-CREEP"}
+        mcp_executed = sum(1 for r in executed_results
+                          if r.get("attack_category", r.get("category", "")) in mcp_cats)
+        mcp_coverage_pct = (mcp_executed / mcp_total_defined * 100) if mcp_total_defined > 0 else 0
+        mcp_coverage = {
+            "total_defined": mcp_total_defined,
+            "total_executed": mcp_executed,
+            "coverage_pct": round(mcp_coverage_pct, 1),
+        }
+
+        # ── Vector-space coverage (v4.0) ──
+        vs_defined = sum(1 for a in defined_attacks if a.get("_source_file", "").startswith("vector_space"))
+        vs_tags = sum(1 for a in defined_attacks if "vector-space" in str(a.get("tags", [])).lower())
+        vs_total_defined = max(vs_defined, vs_tags)
+        vs_cats = {"VECTOR_AND_EMBEDDING", "VECTOR-EMBEDDING"}
+        vs_executed = sum(1 for r in executed_results
+                         if r.get("attack_category", r.get("category", "")) in vs_cats)
+        vs_coverage_pct = (vs_executed / vs_total_defined * 100) if vs_total_defined > 0 else 0
+        vector_space_coverage = {
+            "total_defined": vs_total_defined,
+            "total_executed": vs_executed,
+            "coverage_pct": round(vs_coverage_pct, 1),
+        }
+
+        # ── Multi-agent coverage (v4.0) ──
+        ma_defined = sum(1 for a in defined_attacks if a.get("_source_file", "").startswith("multi_agent"))
+        ma_tags = sum(1 for a in defined_attacks if "multi-agent" in str(a.get("tags", [])).lower())
+        ma_total_defined = max(ma_defined, ma_tags)
+        ma_cats = {"MULTI_AGENT_THREAT", "MULTI-AGENT"}
+        ma_executed = sum(1 for r in executed_results
+                         if r.get("attack_category", r.get("category", "")) in ma_cats)
+        ma_coverage_pct = (ma_executed / ma_total_defined * 100) if ma_total_defined > 0 else 0
+        multi_agent_coverage = {
+            "total_defined": ma_total_defined,
+            "total_executed": ma_executed,
+            "coverage_pct": round(ma_coverage_pct, 1),
+        }
+
         # ── Overall ──
         overall_coverage_pct = (
             len(executed_ids) / len(defined_ids) * 100
@@ -224,6 +267,9 @@ class CoverageDashboard:
             "category_coverage": category_coverage,
             "model_coverage": model_coverage,
             "rag_coverage": rag_coverage,
+            "mcp_coverage": mcp_coverage,
+            "vector_space_coverage": vector_space_coverage,
+            "multi_agent_coverage": multi_agent_coverage,
         }
 
     # ── Display console table ─────────────────────────────────────────
@@ -271,6 +317,36 @@ class CoverageDashboard:
         print(f"  RAG Attacks Executed : {rc['total_executed']}")
         print(f"  RAG Coverage         : {rc['coverage_pct']}%")
 
+        # MCP coverage (v4.0)
+        mcp = data.get("mcp_coverage", {})
+        if mcp:
+            print(f"\n{'─' * 70}")
+            print(f"  MCP Coverage")
+            print(f"{'─' * 70}")
+            print(f"  MCP Attacks Defined  : {mcp.get('total_defined', 0)}")
+            print(f"  MCP Attacks Executed : {mcp.get('total_executed', 0)}")
+            print(f"  MCP Coverage         : {mcp.get('coverage_pct', 0)}%")
+
+        # Vector-Space coverage (v4.0)
+        vs = data.get("vector_space_coverage", {})
+        if vs:
+            print(f"\n{'─' * 70}")
+            print(f"  Vector-Space Coverage")
+            print(f"{'─' * 70}")
+            print(f"  VS Attacks Defined   : {vs.get('total_defined', 0)}")
+            print(f"  VS Attacks Executed  : {vs.get('total_executed', 0)}")
+            print(f"  VS Coverage          : {vs.get('coverage_pct', 0)}%")
+
+        # Multi-Agent coverage (v4.0)
+        ma = data.get("multi_agent_coverage", {})
+        if ma:
+            print(f"\n{'─' * 70}")
+            print(f"  Multi-Agent Coverage")
+            print(f"{'─' * 70}")
+            print(f"  MA Attacks Defined   : {ma.get('total_defined', 0)}")
+            print(f"  MA Attacks Executed  : {ma.get('total_executed', 0)}")
+            print(f"  MA Coverage          : {ma.get('coverage_pct', 0)}%")
+
         print(f"\n{'═' * 70}\n")
 
         return data
@@ -297,6 +373,9 @@ class CoverageDashboard:
         s = data["summary"]
         mc = data["model_coverage"]
         rc = data["rag_coverage"]
+        mcp = data.get("mcp_coverage", {"total_defined": 0, "total_executed": 0, "coverage_pct": 0})
+        vs = data.get("vector_space_coverage", {"total_defined": 0, "total_executed": 0, "coverage_pct": 0})
+        ma = data.get("multi_agent_coverage", {"total_defined": 0, "total_executed": 0, "coverage_pct": 0})
 
         rows_html = ""
         for row in data["category_coverage"]:
@@ -312,9 +391,9 @@ class CoverageDashboard:
 
         html = f"""
 <div class="section">
-  <div class="section-title">📊 Coverage Dashboard — Testing Maturity</div>
+  <div class="section-title">Coverage Dashboard — Testing Maturity</div>
   <div class="callout blue mb-20">
-    ℹ️ We measure maturity, not assume it. This dashboard tracks defined vs executed threats.
+    We measure maturity, not assume it. This dashboard tracks defined vs executed threats.
   </div>
 
   <div class="kpi-row">
@@ -338,6 +417,18 @@ class CoverageDashboard:
       <div class="kpi-value">{rc['coverage_pct']}%</div>
       <div class="kpi-label">RAG Coverage</div>
     </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{mcp.get('coverage_pct', 0)}%</div>
+      <div class="kpi-label">MCP Coverage</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{vs.get('coverage_pct', 0)}%</div>
+      <div class="kpi-label">Vector-Space Coverage</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">{ma.get('coverage_pct', 0)}%</div>
+      <div class="kpi-label">Multi-Agent Coverage</div>
+    </div>
   </div>
 
   <div class="table-wrap">
@@ -351,8 +442,11 @@ class CoverageDashboard:
   </div>
 
   <div class="callout {'green' if rc['coverage_pct'] >= 70 else 'yellow' if rc['coverage_pct'] >= 40 else 'red'} mt-20">
-    RAG: {rc['total_executed']}/{rc['total_defined']} attacks executed ({rc['coverage_pct']}%) ·
-    Local: {mc['local_tests']} tests · Hosted: {mc['hosted_tests']} tests
+    RAG: {rc['total_executed']}/{rc['total_defined']} ({rc['coverage_pct']}%) |
+    MCP: {mcp.get('total_executed', 0)}/{mcp.get('total_defined', 0)} ({mcp.get('coverage_pct', 0)}%) |
+    Vector-Space: {vs.get('total_executed', 0)}/{vs.get('total_defined', 0)} ({vs.get('coverage_pct', 0)}%) |
+    Multi-Agent: {ma.get('total_executed', 0)}/{ma.get('total_defined', 0)} ({ma.get('coverage_pct', 0)}%) |
+    Local: {mc['local_tests']} tests | Hosted: {mc['hosted_tests']} tests
   </div>
 </div>"""
         return html

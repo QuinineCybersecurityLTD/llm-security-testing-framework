@@ -80,6 +80,16 @@ CATEGORY_RISK = {
     "HALLUCINATION_ATTACK": 1.0,
     "INSECURE_PLUGIN": 1.5,
     "OVERRELIANCE": 1.0,
+    # OWASP 2025 refined categories (v4.0)
+    "SYSTEM_PROMPT_LEAKAGE": 2.5,
+    "UNBOUNDED_CONSUMPTION": 1.5,
+    # MCP attack categories (v4.0)
+    "MCP_TOOL_POISONING": 2.5,
+    "MCP_TRANSPORT_EXPLOIT": 2.0,
+    "MCP_SCOPE_CREEP": 2.0,
+    # Advanced RAG / Multi-agent (v4.0)
+    "VECTOR_AND_EMBEDDING": 2.0,
+    "MULTI_AGENT_THREAT": 2.5,
 }
 
 # Certification thresholds

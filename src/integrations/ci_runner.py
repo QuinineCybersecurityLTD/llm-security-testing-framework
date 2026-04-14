@@ -187,6 +187,60 @@ def compute_ci_result(
     )
 
 
+def compare_with_baseline(
+    results: List[tuple],
+    baseline_path: str,
+    model_id: str = "unknown",
+    webhook_url: Optional[str] = None,
+    webhook_type: str = "generic",
+) -> Dict[str, Any]:
+    """
+    Compare current results against a saved baseline for regression detection.
+
+    Args:
+        results: List of (AttackResult, EvaluationResult) tuples
+        baseline_path: Path to baseline JSON file
+        model_id: Model identifier
+        webhook_url: Optional webhook URL for notifications
+        webhook_type: Webhook type ('generic', 'slack', 'teams')
+
+    Returns:
+        Dict with delta summary and file paths
+    """
+    from continuous.continuous_tester import ContinuousTester
+
+    tester = ContinuousTester()
+    baseline = Path(baseline_path)
+
+    if not baseline.exists():
+        # No baseline exists — capture one and return
+        snapshot = tester.capture_baseline(model_id, results)
+        return {
+            "action": "baseline_created",
+            "snapshot_id": snapshot.snapshot_id,
+            "safety_rate": snapshot.safety_rate,
+            "baseline_path": str(snapshot.save()),
+        }
+
+    delta = tester.compare_to_baseline(results, baseline, model_id)
+    report_paths = tester.generate_delta_report(delta)
+
+    result = {
+        "action": "comparison_complete",
+        "is_regression": delta.is_regression,
+        "safety_rate_delta": delta.safety_rate_delta,
+        "new_vulnerabilities": len(delta.new_vulnerabilities),
+        "resolved_vulnerabilities": len(delta.resolved_vulnerabilities),
+        "report_paths": {k: str(v) for k, v in report_paths.items()},
+    }
+
+    if webhook_url and delta.is_regression:
+        tester.notify_webhook(delta, webhook_url, webhook_type)
+        result["webhook_sent"] = True
+
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description="AI Security CI/CD Runner")
     parser.add_argument("--config", type=str, help="Path to config YAML")
@@ -200,6 +254,13 @@ def main():
                         help="Output directory for CI artifacts")
     parser.add_argument("--junit-xml", type=str, default="reports/ci/junit.xml",
                         help="Path for JUnit XML output")
+    # v4.0 — Baseline and webhook flags
+    parser.add_argument("--baseline", type=str, default=None,
+                        help="Path to baseline JSON for regression detection")
+    parser.add_argument("--webhook-url", type=str, default=None,
+                        help="Webhook URL for regression notifications")
+    parser.add_argument("--webhook-type", choices=["generic", "slack", "teams", "pagerduty"],
+                        default="generic", help="Webhook format type")
     args = parser.parse_args()
 
     print(f"[CI] AI Security Test Runner")
@@ -208,10 +269,16 @@ def main():
     print(f"[CI] Use with: python -m integrations.ci_runner --config <path> --threshold <pct>")
     print(f"[CI] Output: {args.output_dir}")
 
+    if args.baseline:
+        print(f"[CI] Baseline comparison: {args.baseline}")
+    if args.webhook_url:
+        print(f"[CI] Webhook: {args.webhook_url} ({args.webhook_type})")
+
     # Note: Full integration with main.py pipeline would be wired here.
     # This module provides the CI wrapper functions that main.py calls after test execution.
     print(f"\n[CI] This module provides CI/CD integration functions.")
     print(f"[CI] Call compute_ci_result() and generate_junit_xml() from your test pipeline.")
+    print(f"[CI] For regression detection, call compare_with_baseline() with --baseline flag.")
     print(f"[CI] See .github/workflows/ai-security-test.yml for GitHub Actions template.")
 
 

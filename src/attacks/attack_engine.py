@@ -60,6 +60,21 @@ class AttackCategory(Enum):
     MULTI_TURN_ATTACK = "MULTI-TURN"
     HALLUCINATION_ATTACK = "HALLUCINATION-ATTACK"
 
+    # OWASP 2025 refined categories (v4.0)
+    SYSTEM_PROMPT_LEAKAGE = "SYSTEM-PROMPT-LEAK"
+    UNBOUNDED_CONSUMPTION = "UNBOUNDED-CONSUMPTION"
+
+    # MCP attack categories (v4.0)
+    MCP_TOOL_POISONING = "MCP-TOOL-POISON"
+    MCP_TRANSPORT_EXPLOIT = "MCP-TRANSPORT"
+    MCP_SCOPE_CREEP = "MCP-SCOPE-CREEP"
+
+    # Advanced RAG categories (v4.0)
+    VECTOR_AND_EMBEDDING = "VECTOR-EMBEDDING"
+
+    # Multi-agent categories (v4.0)
+    MULTI_AGENT_THREAT = "MULTI-AGENT"
+
 
 class AttackComplexity(Enum):
     """Attack complexity levels"""
@@ -279,6 +294,28 @@ class AttackLibrary:
                         "LLM-10": AttackCategory.MODEL_THEFT,
                         "BIAS-FAIRNESS": AttackCategory.BIAS_FAIRNESS,
                         "ADVERSARIAL": AttackCategory.ADVERSARIAL_INPUT,
+                        # OWASP 2025 refined categories (v4.0)
+                        "SYSTEM_PROMPT_LEAKAGE": AttackCategory.SYSTEM_PROMPT_LEAKAGE,
+                        "SYSTEM-PROMPT-LEAK": AttackCategory.SYSTEM_PROMPT_LEAKAGE,
+                        "SYSTEM_PROMPT_LEAK": AttackCategory.SYSTEM_PROMPT_LEAKAGE,
+                        "UNBOUNDED_CONSUMPTION": AttackCategory.UNBOUNDED_CONSUMPTION,
+                        "UNBOUNDED-CONSUMPTION": AttackCategory.UNBOUNDED_CONSUMPTION,
+                        "DENIAL_OF_WALLET": AttackCategory.UNBOUNDED_CONSUMPTION,
+                        # MCP attack categories (v4.0)
+                        "MCP_TOOL_POISONING": AttackCategory.MCP_TOOL_POISONING,
+                        "MCP-TOOL-POISON": AttackCategory.MCP_TOOL_POISONING,
+                        "MCP_TRANSPORT_EXPLOIT": AttackCategory.MCP_TRANSPORT_EXPLOIT,
+                        "MCP-TRANSPORT": AttackCategory.MCP_TRANSPORT_EXPLOIT,
+                        "MCP_SCOPE_CREEP": AttackCategory.MCP_SCOPE_CREEP,
+                        "MCP-SCOPE-CREEP": AttackCategory.MCP_SCOPE_CREEP,
+                        # Advanced RAG categories (v4.0)
+                        "VECTOR_AND_EMBEDDING": AttackCategory.VECTOR_AND_EMBEDDING,
+                        "VECTOR-EMBEDDING": AttackCategory.VECTOR_AND_EMBEDDING,
+                        "VECTOR_SPACE": AttackCategory.VECTOR_AND_EMBEDDING,
+                        # Multi-agent categories (v4.0)
+                        "MULTI_AGENT_THREAT": AttackCategory.MULTI_AGENT_THREAT,
+                        "MULTI-AGENT": AttackCategory.MULTI_AGENT_THREAT,
+                        "MULTI_AGENT": AttackCategory.MULTI_AGENT_THREAT,
                     }
                     category_enum = None
                     for key, val in _CATEGORY_MAP.items():

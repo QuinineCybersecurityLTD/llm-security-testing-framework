@@ -88,6 +88,16 @@ CATEGORY_TO_TAG_TAXONOMY = {
     "MULTI_TURN_ATTACK": "AI SecTest",
     "HALLUCINATION_ATTACK": "AI Safe",
     "HALLUCINATION": "AI Safe",
+    # OWASP 2025 refined categories (v4.0)
+    "SYSTEM_PROMPT_LEAKAGE": "AI DataSec",
+    "UNBOUNDED_CONSUMPTION": "AI DR",
+    # MCP attack categories (v4.0)
+    "MCP_TOOL_POISONING": "AI SecTest",
+    "MCP_TRANSPORT_EXPLOIT": "AI SecTest",
+    "MCP_SCOPE_CREEP": "AI Guard",
+    # Advanced RAG / Multi-agent (v4.0)
+    "VECTOR_AND_EMBEDDING": "AI DataSec",
+    "MULTI_AGENT_THREAT": "AI Safe",
 }
 
 # ── OWASP → NIST / ISO / EU AI Act cross-reference ──
@@ -103,6 +113,12 @@ OWASP_TO_NIST = {
     "LLM-08": "NIST-AI-RMF:MAP-2.1, MEASURE-2.5",
     "LLM-09": "NIST-AI-RMF:MEASURE-2.3, MEASURE-3.3, MAP-2.2",
     "LLM-10": "NIST-AI-RMF:MANAGE-1.3, GOVERN-6.1",
+    # MCP / v4.0 categories
+    "MCP-01": "NIST-AI-RMF:GOVERN-1.1, MANAGE-2.2, MEASURE-2.6",
+    "MCP-02": "NIST-AI-RMF:MAP-2.3, MANAGE-2.4, MEASURE-2.7",
+    "MCP-03": "NIST-AI-RMF:MEASURE-2.6, MANAGE-2.3, GOVERN-1.2",
+    "MCP-04": "NIST-AI-RMF:MAP-2.1, MEASURE-2.5, MANAGE-2.2",
+    "MCP-05": "NIST-AI-RMF:GOVERN-5.1, MANAGE-3.2, MAP-3.4",
 }
 
 OWASP_TO_ISO = {
@@ -116,6 +132,11 @@ OWASP_TO_ISO = {
     "LLM-08": "ISO-42001:A.7.3, 8.4, A.8.4",
     "LLM-09": "ISO-42001:A.8.5, 9.1, A.6.2.5",
     "LLM-10": "ISO-42001:A.7.4, 8.2, A.8.3",
+    "MCP-01": "ISO-42001:6.1.2, 8.4, A.8.2",
+    "MCP-02": "ISO-42001:A.8.2, A.6.2.2, 8.4",
+    "MCP-03": "ISO-42001:7.3.4, A.8.5, A.6.2.4",
+    "MCP-04": "ISO-42001:A.7.3, 8.4, A.8.4",
+    "MCP-05": "ISO-42001:8.4, A.8.2, A.6.2.6",
 }
 
 OWASP_TO_EU_AI_ACT = {
@@ -129,6 +150,11 @@ OWASP_TO_EU_AI_ACT = {
     "LLM-08": "EU-AI-ACT:Article-10, Article-15",
     "LLM-09": "EU-AI-ACT:Article-13, Article-52, Article-71",
     "LLM-10": "EU-AI-ACT:Article-15, Article-28",
+    "MCP-01": "EU-AI-ACT:Article-9, Article-15",
+    "MCP-02": "EU-AI-ACT:Article-13, Article-15",
+    "MCP-03": "EU-AI-ACT:Article-14, Article-52, Article-22",
+    "MCP-04": "EU-AI-ACT:Article-10, Article-15",
+    "MCP-05": "EU-AI-ACT:Article-15, Article-28",
 }
 
 
