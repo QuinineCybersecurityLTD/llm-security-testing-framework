@@ -5,7 +5,7 @@
 [![Status: Production Ready](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)]()
 [![Docker Ready](https://img.shields.io/badge/docker-ready-2496ED.svg)](Dockerfile)
 
-> **Enterprise-grade, automated security testing framework for Large Language Models and RAG systems — guaranteeing AI safety, enabling regulatory compliance, and protecting corporate assets.**
+> **Enterprise-grade, automated security testing framework for Large Language Models and RAG systems guaranteeing AI safety, enabling regulatory compliance, and protecting corporate assets.**
 
 ---
 
@@ -66,23 +66,23 @@ The **LLM Security Testing Framework** automates the execution of 500+ security 
 ## ✨ Key Features
 
 ### Core Capabilities
-- **🎯 500+ Security Attacks** — Pre-built OWASP LLM Top 10 attack library in YAML
-- **🤖 8 Model Adapters** — OpenAI, Anthropic, Gemini, HuggingFace, Ollama, Local GGUF, Prompt Intel, Custom REST
-- **🔄 RAG Pipeline Testing** — Custom TF-IDF/Dense Vector RAG pipeline with security-specific attacks
-- **📊 Multi-Format Reports** — Professional HTML dashboards and machine-readable JSON reports
-- **🧠 Multi-Method Evaluation** — LLM-as-judge, pattern matching, and semantic analysis
-- **📈 Telemetry & Tracking** — SQLite-backed longitudinal vulnerability tracking with Prometheus export
+- **🎯 500+ Security Attacks** Pre-built OWASP LLM Top 10 attack library in YAML
+- **🤖 8 Model Adapters** OpenAI, Anthropic, Gemini, HuggingFace, Ollama, Local GGUF, Prompt Intel, Custom REST
+- **🔄 RAG Pipeline Testing** Custom TF-IDF/Dense Vector RAG pipeline with security-specific attacks
+- **📊 Multi-Format Reports** Professional HTML dashboards and machine-readable JSON reports
+- **🧠 Multi-Method Evaluation** LLM-as-judge, pattern matching, and semantic analysis
+- **📈 Telemetry & Tracking** SQLite-backed longitudinal vulnerability tracking with Prometheus export
 
 ### Advanced Capabilities
-- **🔗 Multi-Turn Attack Framework** — Crescendo, Best-of-N, and Adaptive attack strategies
-- **🏭 Automated Attack Generation** — LLM-powered generation of novel attack variations
-- **⚡ Agentic Attack Suite** — Goal-directed autonomous attack chains
-- **📉 Baseline Delta Comparison** — Regression/improvement tracking between test sessions
-- **📝 Narrative Report Generator** — Board-ready red team narratives (Discovery → Fingerprint → Exploit → Exfiltrate)
-- **📋 Coverage Dashboard** — Real-time testing maturity metrics
-- **🔍 Evaluator Confidence Checks** — Statistical confidence analysis of evaluation results
-- **🔁 Retest Module** — Targeted re-execution of specific previously-failed attacks
-- **🐋 Docker Support** — Multi-stage production Dockerfile with health checks
+- **🔗 Multi-Turn Attack Framework** Crescendo, Best-of-N, and Adaptive attack strategies
+- **🏭 Automated Attack Generation** LLM-powered generation of novel attack variations
+- **⚡ Agentic Attack Suite** Goal-directed autonomous attack chains
+- **📉 Baseline Delta Comparison** Regression/improvement tracking between test sessions
+- **📝 Narrative Report Generator** Board-ready red team narratives (Discovery → Fingerprint → Exploit → Exfiltrate)
+- **📋 Coverage Dashboard** Real-time testing maturity metrics
+- **🔍 Evaluator Confidence Checks** Statistical confidence analysis of evaluation results
+- **🔁 Retest Module** Targeted re-execution of specific previously-failed attacks
+- **🐋 Docker Support** Multi-stage production Dockerfile with health checks
 
 ---
 
@@ -319,10 +319,10 @@ python src/main.py --max-attacks 20                         # Limit attack count
 | **Custom REST/GraphQL** | Extend `base.py` | Custom | Either |
 
 All adapters implement a unified interface:
-- `initialize()` — Set up connections
-- `generate(prompt, system_prompt)` — Get model responses
-- `health_check()` — Verify connectivity
-- `close()` — Cleanup resources
+- `initialize()` Set up connections
+- `generate(prompt, system_prompt)` Get model responses
+- `health_check()` Verify connectivity
+- `close()` Cleanup resources
 
 ---
 
@@ -366,11 +366,11 @@ Dedicated attacks for RAG pipelines across **8 attack types**:
 
 Advanced conversational attack strategies:
 
-- **Crescendo** — Gradually escalate from harmless to malicious over 4+ turns
-- **Best-of-N** — Generate N attack variants, test all, select most effective
-- **Trust Build** — Establish rapport before exploiting
-- **Context Shift** — Pivot conversation topic to bypass guardrails
-- **Adaptive** — Dynamically adjust strategy based on model responses
+- **Crescendo** Gradually escalate from harmless to malicious over 4+ turns
+- **Best-of-N** Generate N attack variants, test all, select most effective
+- **Trust Build** Establish rapport before exploiting
+- **Context Shift** Pivot conversation topic to bypass guardrails
+- **Adaptive** Dynamically adjust strategy based on model responses
 
 ### Automated Attack Generation (`automated_attack_generator.py`)
 
@@ -440,7 +440,7 @@ Responses are classified using a weighted combination of three methods:
 | `CLEAN_REFUSAL` | Refused with no compliance violations |
 | `PARTIAL_LEAKAGE` | Refused but with violations, or partial compliance |
 | `UNSAFE_COMPLIANCE` | Significant compliance or partial with low score |
-| `FULLY_VULNERABLE` | Full compliance — critical vulnerability |
+| `FULLY_VULNERABLE` | Full compliance critical vulnerability |
 
 ### Threat Levels
 
@@ -448,9 +448,9 @@ Each finding is assigned: **LOW**, **MEDIUM**, **HIGH**, or **CRITICAL** severit
 
 ### Additional Evaluation Modules
 
-- **`improved_evaluator.py`** — Enhanced evaluator with advanced heuristics
-- **`evaluator_confidence_check.py`** — Statistical confidence intervals for evaluation results
-- **`partial_leakage_scorer.py`** — Detects partial data leakage (e.g., leaked 3 of 5 PII fields)
+- **`improved_evaluator.py`** Enhanced evaluator with advanced heuristics
+- **`evaluator_confidence_check.py`** Statistical confidence intervals for evaluation results
+- **`partial_leakage_scorer.py`** Detects partial data leakage (e.g., leaked 3 of 5 PII fields)
 
 ---
 
@@ -497,10 +497,10 @@ Can run standalone: `python narrative_generator.py --report=reports/report_<id>.
 ### Comparison Reporter (`comparison_reporter.py`)
 
 Compares two test sessions to produce a **delta report** identifying:
-- 🔴 **Regressions** — Previously safe, now vulnerable
-- 🟢 **Improvements** — Previously vulnerable, now safe
-- ⚪ **Unchanged** — Same classification
-- 🔵 **Net New** — Attacks only in the current run
+- 🔴 **Regressions** Previously safe, now vulnerable
+- 🟢 **Improvements** Previously vulnerable, now safe
+- ⚪ **Unchanged** Same classification
+- 🔵 **Net New** Attacks only in the current run
 
 ### Coverage Dashboard (`coverage_dashboard.py`)
 
@@ -541,7 +541,7 @@ Persistent database (`security_metrics.db`) for:
 Goal-directed, autonomous attack chains that plan multi-step attack sequences against a target model.
 
 ### Automated Attack Generator (`automated_attack_generator.py`)
-Uses LLMs to create novel attacks that aren't in the pre-built library — outputs to `auto_generated_attacks.yaml`.
+Uses LLMs to create novel attacks that aren't in the pre-built library outputs to `auto_generated_attacks.yaml`.
 
 ### Retest Module (`retest.py`)
 Selectively re-run previously failed attacks to verify fixes, comparing against a baseline session.
@@ -656,7 +656,7 @@ The Dockerfile uses a multi-stage build with:
 
 > [!WARNING]
 > - Use **only** on models you own or have explicit permission to test.
-> - **Never** commit API keys to version control — use environment variables.
+> - **Never** commit API keys to version control use environment variables.
 > - The `knowledge_base/` directory contains **intentionally sensitive sample data** for testing purposes.
 > - Review compliance requirements before running tests in regulated environments.
 > - All test activities are logged for audit trails.
@@ -736,16 +736,16 @@ attacks:
 Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch — `git checkout -b feature/my-feature`
+2. Create a feature branch `git checkout -b feature/my-feature`
 3. Make your changes
-4. Run tests — `pytest`
+4. Run tests `pytest`
 5. Submit a pull request
 
 ---
 
 ## 📄 License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License see [LICENSE](LICENSE) for details.
 
 ---
 
