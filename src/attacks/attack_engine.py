@@ -75,6 +75,10 @@ class AttackCategory(Enum):
     # Multi-agent categories (v4.0)
     MULTI_AGENT_THREAT = "MULTI-AGENT"
 
+    # Behavioral analysis categories (v4.1)
+    ADAPTIVE_ATTACK = "ADAPTIVE-ATTACK"
+    EVALUATION_AWARENESS = "EVAL-AWARENESS"
+
 
 class AttackComplexity(Enum):
     """Attack complexity levels"""
@@ -316,6 +320,13 @@ class AttackLibrary:
                         "MULTI_AGENT_THREAT": AttackCategory.MULTI_AGENT_THREAT,
                         "MULTI-AGENT": AttackCategory.MULTI_AGENT_THREAT,
                         "MULTI_AGENT": AttackCategory.MULTI_AGENT_THREAT,
+                        # Behavioral analysis categories (v4.1)
+                        "ADAPTIVE_ATTACK": AttackCategory.ADAPTIVE_ATTACK,
+                        "ADAPTIVE-ATTACK": AttackCategory.ADAPTIVE_ATTACK,
+                        "ADAPTIVE": AttackCategory.ADAPTIVE_ATTACK,
+                        "EVALUATION_AWARENESS": AttackCategory.EVALUATION_AWARENESS,
+                        "EVAL-AWARENESS": AttackCategory.EVALUATION_AWARENESS,
+                        "EVAL_AWARENESS": AttackCategory.EVALUATION_AWARENESS,
                     }
                     category_enum = None
                     for key, val in _CATEGORY_MAP.items():

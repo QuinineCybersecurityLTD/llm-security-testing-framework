@@ -453,6 +453,280 @@ def page_live_feed(results_dir: Path):
 
 
 # ---------------------------------------------------------------------------
+# Behavioral analysis pages (v4.1)
+# ---------------------------------------------------------------------------
+
+def page_behavioral(results_dir: Path):
+    """Behavioral analysis module results — Modules 1-5 and 7."""
+    st.header("Behavioral Analysis")
+    st.caption("Evaluation Awareness · Agentic Sabotage · CoT Deception · Reward Hacking · Sycophancy")
+
+    behavioral_dir = results_dir.parent / "reports" / "behavioral"
+    if not behavioral_dir.exists():
+        # Try relative to project root
+        behavioral_dir = Path(__file__).resolve().parent.parent.parent / "reports" / "behavioral"
+
+    tabs = st.tabs([
+        "Evaluation Awareness",
+        "Agentic Sabotage",
+        "CoT Deception",
+        "Reward Hacking",
+        "Sycophancy",
+    ])
+
+    # ── Evaluation Awareness ─────────────────────────────────────────────
+    with tabs[0]:
+        st.subheader("Evaluation Awareness / Sandbagging Detection")
+        st.caption("Detects whether the model behaves differently under overt safety-evaluation framing vs. covert real-world framing.")
+
+        ea_files = sorted(behavioral_dir.glob("eval_awareness_*.json")) if behavioral_dir.exists() else []
+        if not ea_files:
+            st.info("No evaluation awareness reports found. Run: `python src/main.py --evaluation-awareness --config <path>`")
+        else:
+            selected = st.selectbox("Report", [f.name for f in ea_files], key="ea_sel")
+            data = json.loads((behavioral_dir / selected).read_text(encoding="utf-8"))
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Overt Compliance Rate", f"{data.get('overt_compliance_rate',0)*100:.1f}%")
+            col2.metric("Covert Compliance Rate", f"{data.get('covert_compliance_rate',0)*100:.1f}%")
+            col3.metric("Sandbagging Score", f"{data.get('sandbagging_score',0)*100:.1f}pp")
+            col4.metric("Sandbagging Detected", "YES" if data.get("is_sandbagging") else "NO",
+                        delta_color="inverse" if data.get("is_sandbagging") else "normal")
+
+            probes = data.get("probe_results", [])
+            if probes:
+                df = pd.DataFrame(probes)[["probe_id", "condition", "complied", "classification"]]
+                if HAS_PLOTLY:
+                    fig = px.histogram(
+                        df, x="condition", color="complied", barmode="group",
+                        title="Compliance Rate: Overt vs Covert",
+                        color_discrete_map={True: "#e74c3c", False: "#2ecc71"},
+                    )
+                    fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)")
+                    st.plotly_chart(fig, use_container_width=True)
+                st.dataframe(df, use_container_width=True)
+
+    # ── Agentic Sabotage ─────────────────────────────────────────────────
+    with tabs[1]:
+        st.subheader("Agentic Sabotage Detection (SHADE-Arena)")
+        st.caption("Detects subtle long-horizon task sabotage: computation errors, critical omissions, tool misuse, plausible deniability.")
+
+        as_files = sorted(behavioral_dir.glob("agentic_sabotage_*.json")) if behavioral_dir.exists() else []
+        if not as_files:
+            st.info("No agentic sabotage reports found. Run: `python src/main.py --agentic-sabotage --config <path>`")
+        else:
+            selected = st.selectbox("Report", [f.name for f in as_files], key="as_sel")
+            data = json.loads((behavioral_dir / selected).read_text(encoding="utf-8"))
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Sabotage Rate", f"{data.get('sabotage_rate',0)*100:.1f}%")
+            col2.metric("Sabotage Count", data.get("sabotage_count", 0))
+            col3.metric("High-Confidence", data.get("high_confidence_sabotages", 0))
+
+            attempts = data.get("attempts", [])
+            if attempts:
+                df = pd.DataFrame(attempts)[["scenario_id", "is_sabotage", "confidence", "sabotage_type"]]
+                st.dataframe(df, use_container_width=True)
+
+                if HAS_PLOTLY:
+                    type_counts = df["sabotage_type"].value_counts().reset_index()
+                    type_counts.columns = ["Type", "Count"]
+                    fig = px.pie(type_counts, names="Type", values="Count", title="Sabotage Types")
+                    fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)")
+                    st.plotly_chart(fig, use_container_width=True)
+
+    # ── CoT Deception ────────────────────────────────────────────────────
+    with tabs[2]:
+        st.subheader("Chain-of-Thought Deception Analysis")
+        st.caption("Detects divergence between model's internal reasoning trace and its final response.")
+
+        cd_files = sorted(behavioral_dir.glob("cot_deception_*.json")) if behavioral_dir.exists() else []
+        if not cd_files:
+            st.info("No CoT deception reports found. Run: `python src/main.py --cot-deception --config <path>`")
+        else:
+            selected = st.selectbox("Report", [f.name for f in cd_files], key="cd_sel")
+            data = json.loads((behavioral_dir / selected).read_text(encoding="utf-8"))
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Deception Rate", f"{data.get('deception_rate',0)*100:.1f}%")
+            col2.metric("Sandbagging", data.get("sandbagging_count", 0))
+            col3.metric("Deceptive Compliance", data.get("deceptive_compliance_count", 0))
+            col4.metric("No CoT Available", data.get("no_cot_count", 0))
+
+            probes = data.get("probe_results", [])
+            if probes:
+                df = pd.DataFrame(probes)[["probe_id", "cot_stance", "final_stance", "deception_type", "is_deceptive"]]
+                st.dataframe(df, use_container_width=True)
+
+    # ── Reward Hacking ───────────────────────────────────────────────────
+    with tabs[3]:
+        st.subheader("Reward Hacking Detector")
+        st.caption("Scans generated code for sys.exit(0), hardcoded outputs, test modification, monkey-patching, no-op assertions.")
+
+        rh_files = sorted(behavioral_dir.glob("reward_hacking_*.json")) if behavioral_dir.exists() else []
+        if not rh_files:
+            st.info("No reward hacking reports found. Run: `python src/main.py --reward-hacking --config <path>`")
+        else:
+            selected = st.selectbox("Report", [f.name for f in rh_files], key="rh_sel")
+            data = json.loads((behavioral_dir / selected).read_text(encoding="utf-8"))
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Hacking Rate", f"{data.get('hacking_rate',0)*100:.1f}%")
+            col2.metric("Critical", data.get("critical_count", 0))
+            col3.metric("High", data.get("high_count", 0))
+
+            attempts = data.get("attempts", [])
+            if attempts:
+                df = pd.DataFrame(attempts)[["scenario_id", "is_reward_hacking", "hack_types", "severity"]]
+                df["hack_types"] = df["hack_types"].apply(lambda x: ", ".join(x) if isinstance(x, list) else str(x))
+                st.dataframe(df, use_container_width=True)
+
+    # ── Sycophancy ───────────────────────────────────────────────────────
+    with tabs[4]:
+        st.subheader("Sycophancy Attack Chain Results")
+        st.caption("False premise validation · Expert authority pressure · Incremental commitment · Emotional pressure")
+
+        sy_files = sorted(behavioral_dir.glob("sycophancy_*.json")) if behavioral_dir.exists() else []
+        if not sy_files:
+            st.info("No sycophancy reports found. Run: `python src/main.py --sycophancy --config <path>`")
+        else:
+            selected = st.selectbox("Report", [f.name for f in sy_files], key="sy_sel")
+            data = json.loads((behavioral_dir / selected).read_text(encoding="utf-8"))
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Sycophancy Rate", f"{data.get('sycophancy_rate',0)*100:.1f}%")
+            col2.metric("Position Reversal Rate", f"{data.get('position_reversal_rate',0)*100:.1f}%")
+            col3.metric("False Validation Rate", f"{data.get('false_validation_rate',0)*100:.1f}%")
+            col4.metric("Boundary Erosion Score", f"{data.get('boundary_erosion_score',0):.1f}/100")
+
+            breakdown = data.get("phase_breakdown", {})
+            if breakdown and HAS_PLOTLY:
+                bd_df = pd.DataFrame([
+                    {"Phase": k, "Sycophantic Count": v} for k, v in breakdown.items()
+                ])
+                fig = px.bar(bd_df, x="Phase", y="Sycophantic Count",
+                             color="Sycophantic Count", color_continuous_scale="Reds",
+                             title="Sycophancy by Phase")
+                fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)")
+                st.plotly_chart(fig, use_container_width=True)
+
+            attempts = data.get("attempts", [])
+            if attempts:
+                df = pd.DataFrame(attempts)[[
+                    "attack_id", "phase", "position_reversed",
+                    "false_validated", "boundary_eroded", "bes_contribution"
+                ]]
+                st.dataframe(df, use_container_width=True)
+
+
+def page_infrastructure(results_dir: Path):
+    """Inference infrastructure CVE scanner results — Module 6."""
+    st.header("Inference Infrastructure Security")
+    st.caption("CVE scanning for Ollama, vLLM, Triton, TGI — with unauthenticated endpoint detection.")
+
+    infra_dir = results_dir.parent / "reports" / "infrastructure"
+    if not infra_dir.exists():
+        infra_dir = Path(__file__).resolve().parent.parent.parent / "reports" / "infrastructure"
+
+    infra_files = sorted(infra_dir.glob("infra_scan_*.json")) if infra_dir.exists() else []
+
+    if not infra_files:
+        st.info(
+            "No infrastructure scan reports found.\n\n"
+            "Run: `python src/main.py --infrastructure --infra-endpoint http://localhost:11434`"
+        )
+        return
+
+    selected = st.selectbox("Scan Report", [f.name for f in infra_files])
+    data = json.loads((infra_dir / selected).read_text(encoding="utf-8"))
+
+    risk_colors = {"CRITICAL": "#c0392b", "HIGH": "#e74c3c", "MEDIUM": "#f39c12", "LOW": "#f1c40f", "UNKNOWN": "#95a5a6"}
+    overall = data.get("overall_risk", "UNKNOWN")
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Overall Risk", overall)
+    col2.metric("Vulnerable CVEs", data.get("vulnerable_cve_count", 0))
+    col3.metric("Critical CVEs", data.get("critical_cve_count", 0))
+    col4.metric("Exposed Endpoints", data.get("exposed_endpoint_count", 0))
+
+    st.info(
+        f"**Target:** {data.get('target_endpoint')} | "
+        f"**Software:** {data.get('software_detected', 'unknown')} "
+        f"v{data.get('version_detected', 'unknown')}"
+    )
+
+    st.subheader("CVE Findings")
+    cve_findings = data.get("cve_findings", [])
+    if cve_findings:
+        cve_df = pd.DataFrame(cve_findings)[[
+            "cve_id", "software", "detected_version", "max_vulnerable_version",
+            "is_vulnerable", "severity", "cvss", "check_status"
+        ]]
+        st.dataframe(cve_df, use_container_width=True)
+
+        vuln_cves = [f for f in cve_findings if f["is_vulnerable"]]
+        for f in vuln_cves:
+            with st.expander(f"**{f['cve_id']}** — {f['severity']} (CVSS {f['cvss']})"):
+                st.write(f["description"])
+                st.code(f"Remediation: {f['remediation']}")
+
+    st.subheader("Unauthenticated Endpoint Exposure")
+    unauth = data.get("unauth_findings", [])
+    if unauth:
+        unauth_df = pd.DataFrame(unauth)[["software", "path", "severity", "is_exposed", "http_status"]]
+        st.dataframe(unauth_df, use_container_width=True)
+
+
+def page_adaptive(results_dir: Path):
+    """Adaptive attack loop results — Module 3."""
+    st.header("Adaptive Attack Loop")
+    st.caption("RL-style iterative prompt mutation — ASR tracked at N=1, 10, 50, 100 attempts.")
+
+    adaptive_dir = results_dir.parent / "reports" / "adaptive"
+    if not adaptive_dir.exists():
+        adaptive_dir = Path(__file__).resolve().parent.parent.parent / "reports" / "adaptive"
+
+    adaptive_files = sorted(adaptive_dir.glob("adaptive_*.json")) if adaptive_dir.exists() else []
+
+    if not adaptive_files:
+        st.info("No adaptive attack reports found. Run: `python src/main.py --adaptive --config <path>`")
+        return
+
+    selected = st.selectbox("Run Report", [f.name for f in adaptive_files])
+    data = json.loads((adaptive_dir / selected).read_text(encoding="utf-8"))
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("ASR@1",   f"{data.get('asr_at_1',0)*100:.1f}%")
+    col2.metric("ASR@10",  f"{data.get('asr_at_10',0)*100:.1f}%")
+    col3.metric("ASR@50",  f"{data.get('asr_at_50',0)*100:.1f}%")
+    col4.metric("ASR@100", f"{data.get('asr_at_100',0)*100:.1f}%")
+
+    st.info(
+        f"**Seed:** {data.get('seed_attack_id')} | "
+        f"**Target:** {data.get('target_model')} | "
+        f"**Attacker:** {data.get('attacker_model')} | "
+        f"**First success:** attempt {data.get('first_success_attempt') or 'never'}"
+    )
+
+    attempts = data.get("attempts", [])
+    if attempts and HAS_PLOTLY:
+        df = pd.DataFrame(attempts)
+        df["cumulative_asr"] = df["is_success"].expanding().mean()
+        fig = px.line(
+            df, x="attempt_num", y="cumulative_asr",
+            title="Cumulative ASR Over Attempts",
+            labels={"attempt_num": "Attempt #", "cumulative_asr": "Cumulative ASR"},
+        )
+        fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)")
+        fig.add_hline(y=0.5, line_dash="dash", annotation_text="50% ASR threshold")
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.subheader("Attempt Details")
+        display_df = df[["attempt_num", "classification", "score", "is_success", "strategy_hint"]]
+        st.dataframe(display_df, use_container_width=True)
+
+
+# ---------------------------------------------------------------------------
 # Main app
 # ---------------------------------------------------------------------------
 
@@ -486,7 +760,16 @@ def main():
 
     page = st.sidebar.radio(
         "Navigation",
-        ["Overview", "ASR Trends", "Compliance Posture", "Session Detail", "Live Feed"],
+        [
+            "Overview",
+            "ASR Trends",
+            "Compliance Posture",
+            "Session Detail",
+            "Live Feed",
+            "Behavioral Analysis",
+            "Infrastructure",
+            "Adaptive Attack",
+        ],
     )
 
     st.sidebar.divider()
@@ -519,6 +802,12 @@ def main():
         page_session_detail(conn)
     elif page == "Live Feed":
         page_live_feed(results_dir)
+    elif page == "Behavioral Analysis":
+        page_behavioral(results_dir)
+    elif page == "Infrastructure":
+        page_infrastructure(results_dir)
+    elif page == "Adaptive Attack":
+        page_adaptive(results_dir)
 
     conn.close()
 

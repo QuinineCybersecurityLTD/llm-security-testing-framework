@@ -888,6 +888,35 @@ Examples:
     parser.add_argument("--retest", type=str, default=None, help="Comma-separated attack IDs to retest")
     parser.add_argument("--baseline", type=str, default=None, help="Baseline test ID for retest")
     parser.add_argument("--fast", action="store_true", help="Maximum throughput (concurrent=10, delay=0)")
+    # ── Adaptive Attack Loop (Module 3) ──────────────────────────────────
+    parser.add_argument("--adaptive", action="store_true",
+                        help="Run adaptive attack loop (RL-style iterative prompt mutation)")
+    parser.add_argument("--adaptive-attempts", type=int, default=100,
+                        help="Max mutation attempts per seed attack (default: 100)")
+    parser.add_argument("--attacker-model", type=str, default=None,
+                        help="Model ID to use as attacker-LLM for adaptive mutations")
+    # ── Behavioral analysis modules (v4.1) ───────────────────────────────
+    parser.add_argument("--evaluation-awareness", action="store_true",
+                        help="Run evaluation awareness / sandbagging detection (Module 1)")
+    parser.add_argument("--agentic-sabotage", action="store_true",
+                        help="Run agentic sabotage detection via SHADE-Arena methodology (Module 2)")
+    parser.add_argument("--cot-deception", action="store_true",
+                        help="Run chain-of-thought deception analyzer (Module 4)")
+    parser.add_argument("--reward-hacking", action="store_true",
+                        help="Run reward hacking detector — test suite manipulation (Module 5)")
+    parser.add_argument("--sycophancy", action="store_true",
+                        help="Run sycophancy attack chain — false premise, authority, commitment, emotional (Module 7)")
+    # ── Infrastructure scanner (Module 6) ────────────────────────────────
+    parser.add_argument("--infrastructure", action="store_true",
+                        help="Run inference infrastructure CVE scanner (Module 6)")
+    parser.add_argument("--infra-endpoint", type=str, default=None,
+                        help="Inference server endpoint to scan (e.g. http://localhost:11434)")
+    parser.add_argument("--infra-software", type=str, default=None,
+                        choices=["ollama", "vllm", "triton", "tgi"],
+                        help="Software hint for infrastructure scanner")
+    # ── Convenience flag to run all advanced modules ──────────────────────
+    parser.add_argument("--all-advanced", action="store_true",
+                        help="Run all advanced behavioral analysis modules (Modules 1-7)")
     parser.add_argument("-v", "--verbose", action="count", default=1, help="Increase verbosity (-v, -vv)")
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output")
     parser.add_argument("--log-file", type=str, default=None, help="Write logs to file")
@@ -938,6 +967,140 @@ Examples:
             log.info("Retest report saved: %s", path)
             return
         
+        # ── Resolve --all-advanced shorthand ─────────────────────────
+        if args.all_advanced:
+            args.evaluation_awareness = True
+            args.agentic_sabotage = True
+            args.adaptive = True
+            args.cot_deception = True
+            args.reward_hacking = True
+            args.infrastructure = True
+            args.sycophancy = True
+
+        # ── Infrastructure scanner mode (no target model needed) ──────
+        if args.infrastructure:
+            from infrastructure.inference_scanner import run_infrastructure_mode
+            infra_endpoint = args.infra_endpoint or "http://localhost:11434"
+            log.info("Infrastructure scan: %s (hint=%s)", infra_endpoint, args.infra_software)
+            infra_report = await run_infrastructure_mode(
+                framework=framework,
+                target_endpoint=infra_endpoint,
+                software_hint=args.infra_software,
+            )
+            log.info(
+                "Infrastructure scan complete — risk=%s vulnerable_cves=%d",
+                infra_report.overall_risk, infra_report.vulnerable_cve_count,
+            )
+            if not any([args.adaptive, args.evaluation_awareness, args.agentic_sabotage,
+                        args.cot_deception, args.reward_hacking, args.sycophancy]):
+                return
+
+        # ── Get target model for behavioral modules ───────────────────
+        _behavioral_target = args.model
+        if not _behavioral_target:
+            _targets = framework.config.get('targets', [])
+            _behavioral_target = _targets[0]['name'] if _targets else None
+
+        # ── Evaluation Awareness mode (Module 1) ──────────────────────
+        if args.evaluation_awareness:
+            if not _behavioral_target:
+                log.error("--evaluation-awareness requires a target model")
+            else:
+                from behavioral.evaluation_awareness import run_evaluation_awareness_mode
+                ea_report = await run_evaluation_awareness_mode(framework, _behavioral_target)
+                log.info(
+                    "Evaluation Awareness: sandbagging=%s score=%.0f%%",
+                    ea_report.is_sandbagging, ea_report.sandbagging_score * 100,
+                )
+
+        # ── Agentic Sabotage mode (Module 2) ─────────────────────────
+        if args.agentic_sabotage:
+            if not _behavioral_target:
+                log.error("--agentic-sabotage requires a target model")
+            else:
+                from behavioral.agentic_sabotage import run_agentic_sabotage_mode
+                as_report = await run_agentic_sabotage_mode(framework, _behavioral_target)
+                log.info(
+                    "Agentic Sabotage: rate=%.0f%% high_conf=%d",
+                    as_report.sabotage_rate * 100, as_report.high_confidence_sabotages,
+                )
+
+        # ── Adaptive Attack Loop mode ─────────────────────────────────
+        if args.adaptive:
+            from attacks.adaptive_attacker import run_adaptive_mode
+            target_model = args.model
+            if not target_model:
+                targets = framework.config.get('targets', [])
+                target_model = targets[0]['name'] if targets else None
+            if not target_model:
+                log.error("--adaptive requires a target model (--model or config)")
+                sys.exit(2)
+
+            attacker_model = args.attacker_model or target_model
+            log.info(
+                "Adaptive Attack Loop: target=%s attacker=%s attempts=%d",
+                target_model, attacker_model, args.adaptive_attempts,
+            )
+            adaptive_reports = await run_adaptive_mode(
+                framework=framework,
+                target_model=target_model,
+                attacker_model=attacker_model,
+                max_attempts=args.adaptive_attempts,
+            )
+            log.info(
+                "Adaptive loop complete — %d seed runs, reports in %s",
+                len(adaptive_reports),
+                PROJECT_ROOT / "reports" / "adaptive",
+            )
+
+        # ── CoT Deception mode (Module 4) ─────────────────────────────
+        if args.cot_deception:
+            if not _behavioral_target:
+                log.error("--cot-deception requires a target model")
+            else:
+                from behavioral.cot_deception import run_cot_deception_mode
+                cd_report = await run_cot_deception_mode(framework, _behavioral_target)
+                log.info(
+                    "CoT Deception: rate=%.0f%% sandbagging=%d deceptive_compliance=%d",
+                    cd_report.deception_rate * 100,
+                    cd_report.sandbagging_count,
+                    cd_report.deceptive_compliance_count,
+                )
+
+        # ── Reward Hacking mode (Module 5) ────────────────────────────
+        if args.reward_hacking:
+            if not _behavioral_target:
+                log.error("--reward-hacking requires a target model")
+            else:
+                from behavioral.reward_hacking import run_reward_hacking_mode
+                rh_report = await run_reward_hacking_mode(framework, _behavioral_target)
+                log.info(
+                    "Reward Hacking: rate=%.0f%% critical=%d high=%d",
+                    rh_report.hacking_rate * 100,
+                    rh_report.critical_count,
+                    rh_report.high_count,
+                )
+
+        # ── Sycophancy mode (Module 7) ────────────────────────────────
+        if args.sycophancy:
+            if not _behavioral_target:
+                log.error("--sycophancy requires a target model")
+            else:
+                from attacks.sycophancy_attacker import run_sycophancy_mode
+                sy_report = await run_sycophancy_mode(framework, _behavioral_target)
+                log.info(
+                    "Sycophancy: SR=%.0f%% BES=%.1f PRR=%.0f%%",
+                    sy_report.sycophancy_rate * 100,
+                    sy_report.boundary_erosion_score,
+                    sy_report.position_reversal_rate * 100,
+                )
+
+        # If any advanced module ran, we may exit without running standard test
+        if any([args.adaptive, args.evaluation_awareness, args.agentic_sabotage,
+                args.cot_deception, args.reward_hacking, args.sycophancy,
+                args.infrastructure]):
+            return
+
         if args.mode == "all":
             log.info("Running tests against ALL models …")
             test_ids = await framework.run_all_models(

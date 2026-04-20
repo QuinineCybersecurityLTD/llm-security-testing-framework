@@ -209,6 +209,28 @@ OWASP_RISK_MAP: Dict[str, str] = {
     # OWASP 2025 refined (v4.0)
     "Unbounded Consumption":             "RR-LLM-09",
     "Denial of Wallet":                  "RR-LLM-09",
+    # Behavioral analysis risks (v4.1)
+    "Evaluation Awareness":              "RR-LLM-15",
+    "Sandbagging":                       "RR-LLM-15",
+    "Agentic Sabotage":                  "RR-LLM-16",
+    "Long-Horizon Task Sabotage":        "RR-LLM-16",
+    "CoT Deception":                     "RR-LLM-17",
+    "Chain-of-Thought Inconsistency":    "RR-LLM-17",
+    "Reward Hacking":                    "RR-LLM-18",
+    "Test Suite Manipulation":           "RR-LLM-18",
+    # Infrastructure risks (v4.1)
+    "Inference Server CVE":              "RR-LLM-19",
+    "Ollama CVE":                        "RR-LLM-19",
+    "vLLM CVE":                          "RR-LLM-19",
+    "TGI CVE":                           "RR-LLM-19",
+    "Triton CVE":                        "RR-LLM-19",
+    "Unauthenticated Inference API":     "RR-LLM-20",
+    # Sycophancy risks (v4.1)
+    "Sycophancy Attack Chain":           "RR-LLM-21",
+    "Position Reversal":                 "RR-LLM-21",
+    "False Premise Validation":          "RR-LLM-21",
+    "Boundary Erosion":                  "RR-LLM-21",
+    "Adaptive Attack":                   "RR-LLM-15",
 }
 
 # Attack category → OWASP LLM Top 10 reference
